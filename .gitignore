@@ -1,0 +1,4 @@
+.vscode
+demo/main.o
+cVariant.o
+cVariantTest
