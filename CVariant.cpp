@@ -1,12 +1,12 @@
 /*
  * @Author Shi Zhangkun
  * @Date 2020-09-16 00:47:34
- * @LastEditTime 2020-09-19 01:48:38
+ * @LastEditTime 2020-09-19 03:58:40
  * @LastEditors Shi Zhangkun
  * @Description none
- * @FilePath /cVariant/cVariant.cpp
+ * @FilePath /cVariant/CVariant.cpp
  */
-#include "variant.h"
+#include "CVariant.h"
 #include "string.h"
 #include <string>
 #include <vector>

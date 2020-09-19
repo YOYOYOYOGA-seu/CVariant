@@ -1,4 +1,4 @@
-#include "variant.h"
+#include "CVariant.h"
 #include <iostream>
 #include <vector>
 int main(void)
@@ -55,8 +55,7 @@ int main(void)
 	if(test[3].getValue(outDouble) == false)
 		std::cout <<"类型不符"<< std::endl;
 
-	std::vector<short> cppVctShort = { 1,45,76,99 };
-	gva::CVariant test2 = cppVctShort;
+	gva::CVariant test2 = std::vector<short>{ 1,45,76,99 };
 	test = test2;
 	short cVctShort[] = { 122,123,124 };
 	test.insert((short)23423, 2);
@@ -64,12 +63,13 @@ int main(void)
 	test.insert(cVctShort,sizeof(cVctShort)/sizeof(short), 2);
 
 	short ouputShort;
+  std::cout << "现在test中的值";
 	for (unsigned int i = 0; i < test.getSize(); i++)
 	{
 		if (test[i].getValue(ouputShort) == true)
 			std::cout << ouputShort << ",";
 	}
-
+  std::cout << std::endl;
 	while (1)
 	{
 
