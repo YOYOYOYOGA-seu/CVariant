@@ -3,7 +3,7 @@
 #include <vector>
 int main(void)
 {
-	gva::cVariant test;  
+	gva::CVariant test;  
 	int outputInt; 
 	double outDouble;
 	std::string outputStr;
@@ -56,7 +56,7 @@ int main(void)
 		std::cout <<"类型不符"<< std::endl;
 
 	std::vector<short> cppVctShort = { 1,45,76,99 };
-	gva::cVariant test2 = cppVctShort;
+	gva::CVariant test2 = cppVctShort;
 	test = test2;
 	short cVctShort[] = { 122,123,124 };
 	test.insert((short)23423, 2);

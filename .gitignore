@@ -1,4 +1,5 @@
 .vscode
 demo/main.o
-cVariant.o
+CVariant.o
 cVariantTest
+cVariant.o

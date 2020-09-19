@@ -57,39 +57,39 @@ namespace gva
 
 
 
-  class cVariant {
+  class CVariant {
   private:
     void* data;
     datatype_t type;
     /* for base type, the size is 1; for vector type, the size is the vector size.
-      It will only refreash after call cVariant::getSize() */
+      It will only refreash after call CVariant::getSize() */
     unsigned int size;  
-    /* insert a object to a vector type cVariant object, internal function, and must 
+    /* insert a object to a vector type CVariant object, internal function, and must 
     check if insertable before call this function*/
-    inline void _insert(cVariant& var, unsigned int locate) {
+    inline void _insert(CVariant& var, unsigned int locate) {
         unsigned int n = var.getSize();
-        cVariant temp;
+        CVariant temp;
         for (unsigned int i = 0; i < n; i++)
         {
           temp = var[i];
           
-          static_cast<std::vector<cVariant>*>(data)->insert(static_cast<std::vector<cVariant>*>(data)->begin()+locate, temp);
+          static_cast<std::vector<CVariant>*>(data)->insert(static_cast<std::vector<CVariant>*>(data)->begin()+locate, temp);
           locate++;
         }
         getSize(); //refreash size
     }
     template <typename T>inline void _insert(const T var, unsigned int locate) {
-      cVariant temp;
+      CVariant temp;
       temp = (var);
-      static_cast<std::vector<cVariant>*>(data)->insert(static_cast<std::vector<cVariant>*>(data)->begin()+locate, temp);
+      static_cast<std::vector<CVariant>*>(data)->insert(static_cast<std::vector<CVariant>*>(data)->begin()+locate, temp);
       getSize(); //refreash size
     }
     template <typename T> inline void _insert(const std::vector<T>& var, unsigned int locate) {
       for (int i = 0; i < var.size(); i++)
       {
-        cVariant temp;
+        CVariant temp;
         temp = var[i];
-        static_cast<std::vector<cVariant>*>(data)->insert(static_cast<std::vector<cVariant>*>(data)->begin()+locate, temp);
+        static_cast<std::vector<CVariant>*>(data)->insert(static_cast<std::vector<CVariant>*>(data)->begin()+locate, temp);
         locate++;
       }
       getSize(); //refreash size
@@ -97,22 +97,22 @@ namespace gva
     template <typename T> inline void _insert(const T* var, unsigned int n, unsigned int locate) {
       for (unsigned int i = 0; i < n; i++)
       {
-        cVariant temp;
+        CVariant temp;
         temp = var[i];
-        static_cast<std::vector<cVariant>*>(data)->insert(static_cast<std::vector<cVariant>*>(data)->begin()+locate, temp);
+        static_cast<std::vector<CVariant>*>(data)->insert(static_cast<std::vector<CVariant>*>(data)->begin()+locate, temp);
         locate++;
       }
       getSize(); //refreash size
     }
 
-    /* upgrade a base type cVariant obj to a corresponding vetor type obj */
+    /* upgrade a base type CVariant obj to a corresponding vetor type obj */
     void _upgrade(void);
 
   public:
 
-    cVariant();
-    cVariant(datatype_t tp);
-    template<typename T> cVariant(const T var)
+    CVariant();
+    CVariant(datatype_t tp);
+    template<typename T> CVariant(const T var)
     {
       data = nullptr;
       size = 0;
@@ -122,7 +122,7 @@ namespace gva
         operator=(var);
       }
     }
-    template<typename T> cVariant(const std::vector<T>& var)
+    template<typename T> CVariant(const std::vector<T>& var)
     {
       data = nullptr;
       size = 0;
@@ -132,30 +132,30 @@ namespace gva
         operator=(var);
       }
     }
-    template<typename T> cVariant(const T* var, unsigned int n)
+    template<typename T> CVariant(const T* var, unsigned int n)
     {
       if (static_cast<datatype_t>(dataKind<T>::type) < DATATYPE_BASE_END)
       {
         clear();
         type = static_cast<datatype_t>(dataKind<T>::type+ DATATYPEKIND_BOOLEAN_VECTOR);
-        data = new std::vector<cVariant>;
+        data = new std::vector<CVariant>;
         size = n;
-        cVariant temp;
+        CVariant temp;
         for (int i = 0; i < n; i++)
         {
             temp = var[i];
-            static_cast<std::vector<cVariant>*>(data)->push_back(temp);
+            static_cast<std::vector<CVariant>*>(data)->push_back(temp);
         }
       }
     }
-    cVariant(const cVariant& var);
+    CVariant(const CVariant& var);
 
-    ~cVariant();
+    ~CVariant();
     void clear();
 
-    cVariant& operator=(const cVariant& var);
-    cVariant& operator=(const char* var);
-    template<typename T> cVariant& operator=(const T var)
+    CVariant& operator=(const CVariant& var);
+    CVariant& operator=(const char* var);
+    template<typename T> CVariant& operator=(const T var)
     {
       if (static_cast<datatype_t>(dataKind<T>::type) < DATATYPE_BASE_END)
       {
@@ -173,28 +173,28 @@ namespace gva
       }
       return *this;
     }
-  template<typename T> cVariant& operator=(const std::vector<T>& var)
+  template<typename T> CVariant& operator=(const std::vector<T>& var)
     {
         if (static_cast<datatype_t>(dataKind<T>::type) < DATATYPE_BASE_END)
         {
           clear();
           type = static_cast<datatype_t>(dataKind<T>::type + DATATYPEKIND_BOOLEAN_VECTOR);
-          data = new std::vector<cVariant>;
+          data = new std::vector<CVariant>;
           size = var.size();
-          cVariant temp;
+          CVariant temp;
           for (unsigned int i = 0; i < var.size(); i++)
           {
             temp = var[i];
-            static_cast<std::vector<cVariant>*>(data)->push_back(temp);
+            static_cast<std::vector<CVariant>*>(data)->push_back(temp);
           }
         }
         return *this;
     }
     
     /* for base type , it amount to the data type's own +=(like int += int; string+=string;)
-      for a vector type, it amount to call cVariant::append*/
-    cVariant& operator+=(const char* var);
-    template<typename T> cVariant& operator+=(T var)
+      for a vector type, it amount to call CVariant::append*/
+    CVariant& operator+=(const char* var);
+    template<typename T> CVariant& operator+=(T var)
     {
       if (static_cast<datatype_t>(dataKind<T>::type) == type && type < DATATYPE_BASE_END)
         * static_cast<T*>(data) += var;
@@ -202,27 +202,27 @@ namespace gva
         append(var);
       return *this;
     }
-    template<typename T> cVariant& operator+=(const std::vector<T>& var)
+    template<typename T> CVariant& operator+=(const std::vector<T>& var)
     {
       append(var);
       return *this;
     }
-    cVariant& operator+=(const cVariant& var);
+    CVariant& operator+=(const CVariant& var);
 
     /* it amount to the data type's own -=(like int += int;),and only vaild when the data type can -=*/
-    template<typename T> cVariant& operator-=(T var)
+    template<typename T> CVariant& operator-=(T var)
     {
       if (static_cast<datatype_t>(dataKind<T>::type) == type && type < DATATYPE_BASE_END)
         * static_cast<T*>(data) -= var;
       return *this;
     }
-    cVariant& operator-=(const cVariant& var);
+    CVariant& operator-=(const CVariant& var);
 
     /* only for base type, return true when type = type, data = data */
-    bool operator==(const cVariant& var);
+    bool operator==(const CVariant& var);
     
-    /* for base type , return itself, for vector type, return the number n cVariant object */
-    cVariant& operator[](std::size_t n);
+    /* for base type , return itself, for vector type, return the number n CVariant object */
+    CVariant& operator[](std::size_t n);
 
     bool insert(const char* var, unsigned int locate);
     template <typename T> bool insert(const T var, unsigned int locate)
@@ -252,7 +252,7 @@ namespace gva
       }
         return false;
     }
-    bool insert(const cVariant& var, unsigned int locate);
+    bool insert(const CVariant& var, unsigned int locate);
 
     bool append(const char* var);
     template<typename T>bool append(const T var)
@@ -282,7 +282,7 @@ namespace gva
       }
       return false;
     }
-    bool append(const cVariant& var);
+    bool append(const CVariant& var);
     
     bool erease(unsigned int locate);
     bool erease(unsigned int first, unsigned int last);

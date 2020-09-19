@@ -1,7 +1,7 @@
 /*
  * @Author Shi Zhangkun
  * @Date 2020-09-16 00:47:34
- * @LastEditTime 2020-09-19 00:30:22
+ * @LastEditTime 2020-09-19 01:48:38
  * @LastEditors Shi Zhangkun
  * @Description none
  * @FilePath /cVariant/cVariant.cpp
@@ -22,7 +22,7 @@ const std::size_t BASE_TYPE_SIZE[] = { sizeof(bool),sizeof(char),sizeof(unsigned
  * @param {type} none
  * @retval none
  */
-cVariant::cVariant()
+CVariant::CVariant()
 {
     data = nullptr;
     type = DATATYPEKIND_NOTYPE;
@@ -35,7 +35,7 @@ cVariant::cVariant()
  * @param {type} none
  * @retval none
  */
-cVariant::cVariant(datatype_t tp)
+CVariant::CVariant(datatype_t tp)
 {
     setType(tp);
 }
@@ -47,7 +47,7 @@ cVariant::cVariant(datatype_t tp)
  * @retval none
  */
 
-cVariant::cVariant(const cVariant& var)
+CVariant::CVariant(const CVariant& var)
 {
     data = nullptr;
     type = DATATYPEKIND_NOTYPE;
@@ -60,7 +60,7 @@ cVariant::cVariant(const cVariant& var)
  * @param {type} none
  * @retval none
  */
-cVariant::~cVariant()
+CVariant::~CVariant()
 {
     clear();
 }
@@ -70,7 +70,7 @@ cVariant::~cVariant()
  * @param {type} none
  * @retval none
  */
-void cVariant::clear()
+void CVariant::clear()
 {
     if (data != nullptr)
     {
@@ -114,7 +114,7 @@ void cVariant::clear()
             break;
         default:
             if (type < DATATYPE_VECTOR_END && type >= DATATYPEKIND_BOOLEAN_VECTOR)
-                delete static_cast<std::vector<cVariant>*>(data);
+                delete static_cast<std::vector<CVariant>*>(data);
             break;
         }
     }
@@ -129,12 +129,12 @@ void cVariant::clear()
  * @param {type} none
  * @retval none
  */
-void cVariant::_upgrade(void)
+void CVariant::_upgrade(void)
 {
     if (type < DATATYPE_BASE_END)
     {
         
-        cVariant temp = *this;
+        CVariant temp = *this;
         setType(static_cast<datatype_t>(type + DATATYPEKIND_BOOLEAN_VECTOR));
         _insert(temp, 0);
     }
@@ -146,7 +146,7 @@ void cVariant::_upgrade(void)
  * @param {type} none
  * @retval none
  */
-cVariant& cVariant::operator=(const cVariant& var)
+CVariant& CVariant::operator=(const CVariant& var)
 {
     clear();
     type = var.type;
@@ -200,7 +200,7 @@ cVariant& cVariant::operator=(const cVariant& var)
         default:
             if (type < DATATYPE_VECTOR_END && type >= DATATYPEKIND_BOOLEAN_VECTOR)
             {
-                data = new std::vector<cVariant>(*static_cast<std::vector<cVariant>*>(var.data));
+                data = new std::vector<CVariant>(*static_cast<std::vector<CVariant>*>(var.data));
             }
             else
             {
@@ -219,7 +219,7 @@ cVariant& cVariant::operator=(const cVariant& var)
  * @param {type} none
  * @retval none
  */
-cVariant& cVariant::operator=(const char* var)
+CVariant& CVariant::operator=(const char* var)
 {
     if (type == DATATYPEKIND_STRING && data != nullptr)
     {
@@ -241,7 +241,7 @@ cVariant& cVariant::operator=(const char* var)
  * @param {type} none
  * @retval none
  */
-cVariant& cVariant::operator+=(const cVariant& var)
+CVariant& CVariant::operator+=(const CVariant& var)
 {
     if ((var.type == type && type < DATATYPE_BASE_END))
     {
@@ -296,7 +296,7 @@ cVariant& cVariant::operator+=(const cVariant& var)
  * @param {type} none
  * @retval none
  */
-cVariant& cVariant::operator+=(const char* var)
+CVariant& CVariant::operator+=(const char* var)
 {
     if (type == DATATYPEKIND_STRING)
         *static_cast<std::string*>(data) += var;
@@ -311,7 +311,7 @@ cVariant& cVariant::operator+=(const char* var)
  * @param {type} none
  * @retval none
  */
-cVariant& cVariant::operator-=(const cVariant& var)
+CVariant& CVariant::operator-=(const CVariant& var)
 {
     if ((var.type == type && type < DATATYPE_BASE_END))
     {
@@ -362,7 +362,7 @@ cVariant& cVariant::operator-=(const cVariant& var)
  * @param {type} none
  * @retval none
  */
-bool cVariant::operator==(const cVariant& var)
+bool CVariant::operator==(const CVariant& var)
 {
     if (type == var.type && type < DATATYPE_BASE_END && type != DATATYPEKIND_STRING) //ÊÇÏàÍ¬µÄ»ù´¡ÀàÐÍ
     {
@@ -387,12 +387,12 @@ bool cVariant::operator==(const cVariant& var)
  * @param {type} none
  * @retval none
  */
-cVariant& cVariant::operator[](std::size_t n)
+CVariant& CVariant::operator[](std::size_t n)
 {
     if (!(type >= DATATYPEKIND_BOOLEAN_VECTOR && type < DATATYPE_VECTOR_END))
       return *this;
     else
-      return static_cast<std::vector<cVariant>*>(data)->at(n);
+      return static_cast<std::vector<CVariant>*>(data)->at(n);
 }
 
 /**
@@ -401,7 +401,7 @@ cVariant& cVariant::operator[](std::size_t n)
  * @param {type} none
  * @retval none
  */
-bool cVariant::insert(const cVariant& var, unsigned int locate)
+bool CVariant::insert(const CVariant& var, unsigned int locate)
 {
     if (type > DATATYPEKIND_BOOLEAN_VECTOR && (var.type + DATATYPEKIND_BOOLEAN_VECTOR == type || var.type == type)  \
         && type != DATATYPEKIND_NOTYPE)
@@ -418,7 +418,7 @@ bool cVariant::insert(const cVariant& var, unsigned int locate)
  * @param {type} none
  * @retval none
  */
-bool cVariant::insert(const char* var, unsigned int locate)
+bool CVariant::insert(const char* var, unsigned int locate)
 {
     if (type == DATATYPEKIND_STRING_VECTOR)
     {
@@ -435,7 +435,7 @@ bool cVariant::insert(const char* var, unsigned int locate)
  * @param {type} none
  * @retval none
  */
-bool cVariant::append(const cVariant& var)
+bool CVariant::append(const CVariant& var)
 {
     if ((var.type + DATATYPEKIND_BOOLEAN_VECTOR == type || var.type == type)  \
         && type != DATATYPEKIND_NOTYPE)
@@ -455,7 +455,7 @@ bool cVariant::append(const cVariant& var)
  * @param {type} none
  * @retval none
  */
-bool cVariant::append(const char* var)
+bool CVariant::append(const char* var)
 {
     if (type == DATATYPEKIND_STRING)
     {
@@ -477,12 +477,12 @@ bool cVariant::append(const char* var)
  * @param {type} none
  * @retval none
  */
-bool cVariant::erease(unsigned int locate)
+bool CVariant::erease(unsigned int locate)
 {
-    if (ifVectorType(type) && locate < static_cast<std::vector<cVariant>*>(data)->size())
+    if (ifVectorType(type) && locate < static_cast<std::vector<CVariant>*>(data)->size())
     {
-        std::vector<cVariant>::iterator itr = static_cast<std::vector<cVariant>*>(data)->begin() + locate;
-        static_cast<std::vector<cVariant>*>(data)->erase(itr);
+        std::vector<CVariant>::iterator itr = static_cast<std::vector<CVariant>*>(data)->begin() + locate;
+        static_cast<std::vector<CVariant>*>(data)->erase(itr);
         return true;
     }
     return false;
@@ -494,13 +494,13 @@ bool cVariant::erease(unsigned int locate)
  * @param {type} none
  * @retval none
  */
-bool cVariant::erease(unsigned int first, unsigned int last)
+bool CVariant::erease(unsigned int first, unsigned int last)
 {
-    if (ifVectorType(type) && first <= last && last < static_cast<std::vector<cVariant>*>(data)->size())
+    if (ifVectorType(type) && first <= last && last < static_cast<std::vector<CVariant>*>(data)->size())
     {
-        std::vector<cVariant>::iterator ftr = static_cast<std::vector<cVariant>*>(data)->begin() + first;
-        std::vector<cVariant>::iterator ltr = static_cast<std::vector<cVariant>*>(data)->begin() + last;
-        static_cast<std::vector<cVariant>*>(data)->erase(ftr, ltr);
+        std::vector<CVariant>::iterator ftr = static_cast<std::vector<CVariant>*>(data)->begin() + first;
+        std::vector<CVariant>::iterator ltr = static_cast<std::vector<CVariant>*>(data)->begin() + last;
+        static_cast<std::vector<CVariant>*>(data)->erase(ftr, ltr);
         return true;
     }
     return false;
@@ -512,7 +512,7 @@ bool cVariant::erease(unsigned int first, unsigned int last)
  * @param {type} none
  * @retval none
  */
-const void* cVariant::getPtr(void)
+const void* CVariant::getPtr(void)
 {
     if (type < DATATYPE_BASE_END)
         return data;
@@ -526,7 +526,7 @@ const void* cVariant::getPtr(void)
  * @retval none
  */
 template<char>
-const char* cVariant::getPtr(void) //µ¥¶ÀÁÐ³ö»ñÈ¡cÀàÐÍ×Ö·û´®Ö¸Õë£¨´æ´¢²ÉÓÃstd::string£¬Ã»ÓÐcÀàÐÍ×Ö·û´®µÄdatatype_t£©
+const char* CVariant::getPtr(void) //µ¥¶ÀÁÐ³ö»ñÈ¡cÀàÐÍ×Ö·û´®Ö¸Õë£¨´æ´¢²ÉÓÃstd::string£¬Ã»ÓÐcÀàÐÍ×Ö·û´®µÄdatatype_t£©
 {
     if (type == DATATYPEKIND_STRING)
         return static_cast<std::string*>(data)->c_str();
@@ -538,7 +538,7 @@ const char* cVariant::getPtr(void) //µ¥¶ÀÁÐ³ö»ñÈ¡cÀàÐÍ×Ö·û´®Ö¸Õë£¨´æ´¢²ÉÓÃstd::s
  * @param {type} none
  * @retval none
  */
-bool cVariant::setValue(void* dat, size_t size)
+bool CVariant::setValue(void* dat, size_t size)
 {
     if (type < DATATYPE_BASE_END)  //»ù´¡Êý¾ÝÀàÐÍ²Å¿ÉÒÔÉèÖÃÖµ
     {
@@ -565,7 +565,7 @@ bool cVariant::setValue(void* dat, size_t size)
  * @param {type} none
  * @retval none
  */
-bool cVariant::setValue(const char* value)  //µ¥¶ÀÁÐ³öÍ¨¹ýcÀàÐÍ×Ö·û´®¸ø×Ö·û´®¸³Öµ£¨´æ´¢²ÉÓÃstd::string£©
+bool CVariant::setValue(const char* value)  //µ¥¶ÀÁÐ³öÍ¨¹ýcÀàÐÍ×Ö·û´®¸ø×Ö·û´®¸³Öµ£¨´æ´¢²ÉÓÃstd::string£©
 {
     if (type == DATATYPEKIND_STRING)
     {
@@ -581,7 +581,7 @@ bool cVariant::setValue(const char* value)  //µ¥¶ÀÁÐ³öÍ¨¹ýcÀàÐÍ×Ö·û´®¸ø×Ö·û´®¸³Ö
  * @param {type} none
  * @retval none
  */
-bool cVariant::setType(datatype_t tp)
+bool CVariant::setType(datatype_t tp)
 {
     if (ifType(tp) == false)
         return false;
@@ -633,7 +633,7 @@ bool cVariant::setType(datatype_t tp)
         size = 0;
         if (type < DATATYPE_VECTOR_END && type >= DATATYPEKIND_BOOLEAN_VECTOR)
         {
-            data = new std::vector<cVariant>;
+            data = new std::vector<CVariant>;
         }
         else
         {
@@ -650,7 +650,7 @@ bool cVariant::setType(datatype_t tp)
  * @param {type} none
  * @retval none
  */
-datatype_t cVariant::getType(void)
+datatype_t CVariant::getType(void)
 {
     return type;
 }
@@ -661,11 +661,11 @@ datatype_t cVariant::getType(void)
  * @param {type} none
  * @retval none
  */
-unsigned int cVariant::getSize(void)
+unsigned int CVariant::getSize(void)
 {
     if (type < DATATYPE_VECTOR_END && type >= DATATYPEKIND_BOOLEAN_VECTOR)
     {
-        size = static_cast<std::vector<cVariant>*>(data)->size();
+        size = static_cast<std::vector<CVariant>*>(data)->size();
     }
     return size;
 }
