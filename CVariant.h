@@ -4,7 +4,7 @@
 #include <vector>
 #include <iostream>
 typedef enum {
-  /* 基础数据类型（兼容 OPEN62541） */
+  /* base data type ( compatibility with open62541) */
   DATATYPEKIND_BOOLEAN = 0,
   DATATYPEKIND_SBYTE = 1,
   DATATYPEKIND_BYTE = 2,
@@ -18,7 +18,8 @@ typedef enum {
   DATATYPEKIND_DOUBLE = 10,
   DATATYPEKIND_STRING = 11,
   DATATYPE_BASE_END,
-  /* 向量数据类型 */
+  
+  /* vector type */
   DATATYPEKIND_BOOLEAN_VECTOR = 100,
   DATATYPEKIND_SBYTE_VECTOR = 101,
   DATATYPEKIND_BYTE_VECTOR = 102,
@@ -32,6 +33,8 @@ typedef enum {
   DATATYPEKIND_DOUBLE_VECTOR = 110,
   DATATYPEKIND_STRING_VECTOR = 111,
   DATATYPE_VECTOR_END,
+
+  /* sign a empty CVariant object */
   DATATYPEKIND_NOTYPE = 255,
 #define MAX_DATA_TYPE_INDEX  11
 }datatype_t;
@@ -107,8 +110,11 @@ namespace gva
 
     /* upgrade a base type CVariant obj to a corresponding vetor type obj */
     void _upgrade(void);
-    bool _transform_1(datatype_t tp);
-    template <typename T>static CVariant _transform_2(datatype_t tp, const T var){
+
+    /* _cast_1 is the first step of cast between numberic type CVariant  */
+    bool _cast_1(datatype_t tp);
+    /* _cast_2 is the second step of cast between numberic type CVariant, called by _cast_1  */
+    template <typename T>static CVariant _cast_2(datatype_t tp, const T var){
       CVariant temp;
       switch (tp)
       {
@@ -214,7 +220,7 @@ namespace gva
       }
       return *this;
     }
-  template<typename T> CVariant& operator=(const std::vector<T>& var)
+    template<typename T> CVariant& operator=(const std::vector<T>& var)
     {
         if (static_cast<datatype_t>(dataKind<T>::type) < DATATYPE_BASE_END)
         {
@@ -241,7 +247,7 @@ namespace gva
         *static_cast<T*>(data) += var;
       else if (ifNumType(dataKind<T>::type) && ifNumType(type))   // numerical value can transform
       {
-        CVariant temp = _transform_2(type,var);
+        CVariant temp = _cast_2(type,var);
         if(temp.getType() == type)
           operator+=(temp);
       }
@@ -263,7 +269,7 @@ namespace gva
         *static_cast<T*>(data) -= var;
       else if (ifNumType(dataKind<T>::type) && ifNumType(type))   // numerical value can transform
       {
-        CVariant temp = _transform_2(type,var);
+        CVariant temp = _cast_2(type,var);
         if(temp.getType() == type)
           operator-=(temp);
       }
@@ -277,6 +283,7 @@ namespace gva
     /* for base type , return itself, for vector type, return the number n CVariant object */
     CVariant& operator[](std::size_t n);
 
+    /* insert elements to a vector type CVariant(must has the same base type) */
     bool insert(const char* var, unsigned int locate);
     template <typename T> bool insert(const T var, unsigned int locate)
     {
@@ -288,7 +295,7 @@ namespace gva
       else if(ifNumType(type - DATATYPEKIND_BOOLEAN_VECTOR)&&ifNumType(dataKind<T>::type))
       {
         CVariant temp = var;
-        temp._transform_1(static_cast<datatype_t>(type - DATATYPEKIND_BOOLEAN_VECTOR));
+        temp._cast_1(static_cast<datatype_t>(type - DATATYPEKIND_BOOLEAN_VECTOR));
         _insert(temp, locate);
         return true;
       }
@@ -314,6 +321,9 @@ namespace gva
     }
     bool insert(const CVariant& var, unsigned int locate);
 
+    /* append elements to the end of a vector type CVariant object, if the CVariant is a 
+    base type(but must same as the input or can do a cast), the function will upgrade 
+    the CVariant to vector type. */
     bool append(const char* var);
     template<typename T>bool append(const T var)
     {
@@ -323,7 +333,6 @@ namespace gva
       }
       return insert(var,getSize());
     }
-
     template<typename T>bool append(const std::vector<T>& var)
     {
       if (static_cast<datatype_t>(dataKind<T>::type) == type)
@@ -334,9 +343,11 @@ namespace gva
     }
     bool append(const CVariant& var);
     
+    /* Delete a pointed element or a range of elements in vector type CVariant object */
     bool erease(unsigned int locate);
     bool erease(unsigned int first, unsigned int last);
     
+    /* Get the ptr to the origin data memory area. */
     const void* getPtr(void);
     template<char> const char* getPtr(void); 
     template<typename T> const T* getPtr(void)
@@ -346,7 +357,8 @@ namespace gva
       return nullptr;
     }
 
-
+    /* Get value of a CVariant object. for a vector type, you can call as: 
+    `var[i].get`.return true if success.*/
     template<typename T>bool get(T& retVal) {
       if (static_cast<datatype_t>(dataKind<T>::type) == type)
       {
@@ -356,6 +368,9 @@ namespace gva
       return false;
     }
 
+    /* Directly return the value,but if failed, will abort the whole 
+    proccess(current type of CVariant object can't cast to the given
+     type T) */
     template<typename T>T value(void) {
       if (static_cast<datatype_t>(dataKind<T>::type) == type)
       {
@@ -364,7 +379,7 @@ namespace gva
       else if(ifNumType(dataKind<T>::type)&&ifNumType(type))
       {
         CVariant temp = *this;
-        temp._transform_1(static_cast<datatype_t>(dataKind<T>::type));
+        temp._cast_1(static_cast<datatype_t>(dataKind<T>::type));
         return *static_cast<T*>(temp.data);
       }
       std::cerr << "CVariant: bad value read type,request("<< dataKind<T>::type <<"), current(" \
@@ -372,6 +387,12 @@ namespace gva
       abort();
       return 0;
     }
+    
+    /* Set a CVariant object's value, different form operator = ,it can't
+     change the CVariant object's type, so if the input's type is different 
+     form object's current type and can't do a static_cast, the operate will 
+     not success. In other words, this function will do type checking and 
+     not a copy assignment function */
     bool setValue(void* dat, size_t size);
     bool setValue(const char* value);
     template<typename T>bool setValue(T value) {
@@ -382,14 +403,20 @@ namespace gva
       }
       else if(ifNumType(dataKind<T>::type)&&ifNumType(type))
       {
-        *this = _transform_2(type,value);
+        *this = _cast_2(type,value);
         return true;
       }
       return false;
     }
 
+    /* Set a CVariant to a pointed type, and will call clear() if the CVariant 
+    object is not empty. */
     bool setType(datatype_t tp);
+
+    /* Get a CVariant object's type */
     datatype_t getType(void);
+
+    /* Get a vector type CVariant object's size ( base type always 1) */
     unsigned int getSize(void);
 
     static inline bool ifBaseType(int type) {

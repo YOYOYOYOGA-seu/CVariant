@@ -15,7 +15,7 @@ var.append(5.12); //now var upgarde to double[] type:{5.14, 5.12}
 var.insert(1,4.44); //{5.14, 4.44, 5.12}
 ...
 ```
-In addition, all type is defined dynamicly, it means you can change it's type any time.  
+In addition, all type is defined dynamicly, it means you can change it's type at any time.  
 For more information, please read section 3 for more detail.
 
 </br>
@@ -24,7 +24,15 @@ For more information, please read section 3 for more detail.
 ## 2. Update log
 </br>
 
-* Sep. 19, 2020 : Upload repositories.
+* Sep. 19, 2020 : Upload repositories.  
+</br>
+
+* Sep. 20, 2020 : Add function `T value(void)`, `bool ifNumType(int type)`, add auto dynamicly cast  mechanism, now will do a auto cast between numeric type value in some operates.  
+
+</br>
+
+* Wait to do :  
+ add operator+, operator-, operator*, operator/, operator();  
   
 </br>
 </br>
@@ -83,6 +91,10 @@ static bool ifBaseType(int type);
 Check if the input type index a base type.
 
 ```cpp
+static bool ifNumType(int type);    
+```
+Chack if the the input type index a numeric type (int, char, double...).
+```cpp
 static bool ifVectorType(int type);  
 ```
 Check if the input type index a vector type .
@@ -133,13 +145,17 @@ insert elements to a vector type CVariant(must has the same base type)
 ```cpp
 bool clear(); 
 ```
-Clear, will release memory.
+Clear, will release all using memory.
+
+</br>
+
+</br>
 
 ## 4. matters need attention
 
 </br>
 
-* Although the CVariant will auto do some cast dynamicly, but if you pay attention to the program's performance, you'd better do a statement when using template function. That mean's you'd better do a pre-cast and insure the input type of function(or operator) are strictly same as the CVariant object's current type, to avoid a dynamic cast by the CVariant's internal function. for example:
+**(1)** Although the CVariant will auto do some cast dynamicly, but if you pay attention to the program's performance, you'd better do a statement when using template function. That mean's you'd better do a pre-cast and insure the input type of function(or operator) are strictly same as the CVariant object's current type, to avoid a dynamic cast by the CVariant's internal function. for example:
 ```cpp
 CVariant<double> var(static_cast<double>(5));
 var += static_cast<double>(3); //or var += 3.0
@@ -147,44 +163,56 @@ var.append<double>(123);
 var.insert<double>(0,'s');
 var = static_cast<char>32;
 ...
-
 ```
-* What happens a internal dynamicly auto cast:
+Also, a data type cast may cause loss of accuracy (double to int) or  error in label (signed to unsigned), so that's another reason of recommending user do pre-cast carefully but depend too much  on CVariant's internal auto cast.
+
+</br>
+
+**(2)** What happens a internal dynamicly auto cast:
 A cast will only happen between numeric type(like char, double ,unsigned int).For example, there are 3 CVariant objects:
 ```cpp
 CVariant var1 = 3; // int
 CVariant var2 = static_cast<char>(3); // char
 CVariant var3 = 3.14; //double
 ```
-(1)when do a arithmetical operate:
+</br>
+
+* when do a arithmetical operate:
 ```cpp
 var3 += 2;    // do a cast (2 to 2.00000 and add to var3)
 var3 += var1   // do a cast (var.type from int to double and add to var3)
 var1 -= var2;  // do a cast (var.type from char to int and minus from var3)
 ...
 ```
-(2)when call setValue:
+</br>
+
+* when call setValue:
 ```cpp
 var3.setValue(2);    // do a cast (2 to 2.00000 and add to var3)
 var3.setValue('a');   // do a cast ( from char to double and add to var3)
 ...
 ```
-You must pay attention that setValue a different form operator=, while operator= more like a copy function and will change the caller object's type, like `var3 = 2;` that will change `var3` form double to int.
+You must pay attention that setValue is different form operator=, while operator= more like a copy function and will change the caller object's type, like `var3 = 2;` that will change `var3` form double to int.
 
-(3)when call value:
+</br>
+
+* when call value:
 ```cpp
 int a = var3.value<int>();    // do a cast (double to int and return it)
 double b = var2.setValue<double>();   // do a cast ( from char to double and return it)
 ...
 ```
-You must pay attention that when the cast is invaild(fail) among program running time, it will cause the program abort. So recommend to use `CVariant::get` like `if(var3.get(a) == false) return;`.
-(4)when append or insert a  numerical value:
+You must pay attention when the cast is invaild(fail) among program running time, it will cause the program abort. So recommend to use `CVariant::get` like `if(var3.get(a) == false) return;`.
+
+</br>
+
+* when append or insert a  numerical value:
 ```cpp
 var3.append(2) //do a cast (2 to 2.00000 and and append it to var3)
 var3.insert(0,'q'); // do a cast ( from char to double and insert it to var3)
 ...
 ```
-You must pay attention that when append or insert a CVariant object, the auto cast will not happen(don't like the arithmetical operate), Because `arithmetical cast are understandable, but elements'type must be strict conformance in a vector`.
+You must pay attention when append or insert a CVariant object, the auto cast will not happen(don't like the arithmetical operate), Because `arithmetical cast are understandable, but elements'type must be strict conformance in a vector`.
 ```cpp
 var3.append(var2);   //return fail (not do cast from char to double)
 var3.insert(var1);   //return fail (not do cast from int to double)
