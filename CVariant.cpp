@@ -1,7 +1,7 @@
 /*
  * @Author Shi Zhangkun
  * @Date 2020-09-16 00:47:34
- * @LastEditTime 2020-09-19 03:58:40
+ * @LastEditTime 2020-09-19 20:22:14
  * @LastEditors Shi Zhangkun
  * @Description none
  * @FilePath /cVariant/CVariant.cpp
@@ -146,6 +146,53 @@ void CVariant::_upgrade(void)
  * @param {type} none
  * @retval none
  */
+bool CVariant::_transform_1(datatype_t tp)
+{
+  if(!ifNumType(tp))
+    return false;
+  switch (type)
+  {
+  case DATATYPEKIND_SBYTE:
+    *this = _transform_2(tp,*static_cast<char*>(data));
+    break;
+  case DATATYPEKIND_BYTE: 
+    *this = _transform_2(tp,*static_cast<unsigned char*>(data));
+    break;
+  case DATATYPEKIND_INT16:
+    *this = _transform_2(tp,*static_cast<short*>(data));
+    break;
+  case DATATYPEKIND_UINT16:
+    *this = _transform_2(tp,*static_cast<unsigned short*>(data));
+    break;
+  case DATATYPEKIND_INT32:
+    *this = _transform_2(tp,*static_cast<int*>(data));
+    break;
+  case DATATYPEKIND_UINT32:
+    *this = _transform_2(tp,*static_cast<unsigned int*>(data));
+    break;
+  case DATATYPEKIND_INT64:
+    *this = _transform_2(tp,*static_cast<long long*>(data));
+    break;
+  case DATATYPEKIND_UINT64:
+    *this = _transform_2(tp,*static_cast<unsigned long long*>(data));
+    break;
+  case DATATYPEKIND_FLOAT:
+    *this = _transform_2(tp,*static_cast<float*>(data));
+    break;
+  case DATATYPEKIND_DOUBLE:
+    *this = _transform_2(tp,*static_cast<double*>(data));
+    break;
+  default:
+    return false;
+  }
+  return true;        
+}
+/**
+ * @brief  
+ * @note  
+ * @param {type} none
+ * @retval none
+ */
 CVariant& CVariant::operator=(const CVariant& var)
 {
     clear();
@@ -165,10 +212,10 @@ CVariant& CVariant::operator=(const CVariant& var)
             data = new bool(*static_cast<bool*>(var.data));
             break;
         case DATATYPEKIND_SBYTE:
-            data = new unsigned char(*static_cast<unsigned char*>(var.data));
+            data = new char(*static_cast<char*>(var.data));
             break;
         case DATATYPEKIND_BYTE:
-            data = new char(*static_cast<char*>(var.data));
+            data = new unsigned char(*static_cast<unsigned char*>(var.data));
             break;
         case DATATYPEKIND_INT16:
             data = new short(*static_cast<short*>(var.data));
@@ -243,51 +290,59 @@ CVariant& CVariant::operator=(const char* var)
  */
 CVariant& CVariant::operator+=(const CVariant& var)
 {
-    if ((var.type == type && type < DATATYPE_BASE_END))
+  const CVariant* pvar = &var;
+  CVariant temp;
+  if(var.type != type&&ifNumType(type)&&ifNumType(var.type))
+  {
+    temp = var;
+    temp._transform_1(type);
+    pvar = &temp;
+  }
+  if ((pvar->type == type && type < DATATYPE_BASE_END))
+  {
+    switch (type)
     {
-        switch (type)
-        {
-            // bool type can't do + or -
-        case DATATYPEKIND_SBYTE:
-            *static_cast<unsigned char*>(data) += *static_cast<unsigned char*>(var.data);
-                break;
-        case DATATYPEKIND_BYTE:
-            *static_cast<char*>(data) += *static_cast<char*>(var.data);
-            break;
-        case DATATYPEKIND_INT16:
-            *static_cast<short*>(data) += *static_cast<short*>(var.data);
-            break;
-        case DATATYPEKIND_UINT16:
-            *static_cast<unsigned short*>(data) += *static_cast<unsigned short*>(var.data);
-            break;
-        case DATATYPEKIND_INT32:
-            *static_cast<int*>(data) += *static_cast<int*>(var.data);
-            break;
-        case DATATYPEKIND_UINT32:
-            *static_cast<unsigned int*>(data) += *static_cast<unsigned int*>(var.data);
-            break;
-        case DATATYPEKIND_INT64:
-            *static_cast<long long*>(data) += *static_cast<long long*>(var.data);
-            break;
-        case DATATYPEKIND_UINT64:
-            *static_cast<unsigned long long*>(data) += *static_cast<unsigned long long*>(var.data);
-            break;
-        case DATATYPEKIND_FLOAT:
-            *static_cast<float*>(data) += *static_cast<float*>(var.data);
-            break;
-        case DATATYPEKIND_DOUBLE:
-            *static_cast<double*>(data) += *static_cast<double*>(var.data);
-            break;
-        case DATATYPEKIND_STRING:
-            *static_cast<std::string*>(data) += *static_cast<std::string*>(var.data);
-            break;
-        default:
-            break;
-        }
+        // bool type can't do + or -
+    case DATATYPEKIND_SBYTE:
+      *static_cast<char*>(data) += *static_cast<char*>(pvar->data);
+      break;
+    case DATATYPEKIND_BYTE:
+      *static_cast<unsigned char*>(data) += *static_cast<unsigned char*>(pvar->data);
+      break;
+    case DATATYPEKIND_INT16:
+      *static_cast<short*>(data) += *static_cast<short*>(pvar->data);
+      break;
+    case DATATYPEKIND_UINT16:
+      *static_cast<unsigned short*>(data) += *static_cast<unsigned short*>(pvar->data);
+      break;
+    case DATATYPEKIND_INT32:
+      *static_cast<int*>(data) += *static_cast<int*>(pvar->data);
+      break;
+    case DATATYPEKIND_UINT32:
+      *static_cast<unsigned int*>(data) += *static_cast<unsigned int*>(pvar->data);
+      break;
+    case DATATYPEKIND_INT64:
+      *static_cast<long long*>(data) += *static_cast<long long*>(pvar->data);
+      break;
+    case DATATYPEKIND_UINT64:
+      *static_cast<unsigned long long*>(data) += *static_cast<unsigned long long*>(pvar->data);
+      break;
+    case DATATYPEKIND_FLOAT:
+      *static_cast<float*>(data) += *static_cast<float*>(pvar->data);
+      break;
+    case DATATYPEKIND_DOUBLE:
+      *static_cast<double*>(data) += *static_cast<double*>(pvar->data);
+      break;
+    case DATATYPEKIND_STRING:
+      *static_cast<std::string*>(data) += *static_cast<std::string*>(pvar->data);
+      break;
+    default:
+        break;
     }
-    else if ((var.type + DATATYPEKIND_BOOLEAN_VECTOR) == type)
-        append(var);
-    return *this;
+  }
+  else if ((var.type + DATATYPEKIND_BOOLEAN_VECTOR) == type)
+    append(var);
+  return *this;
 }
 
 /**
@@ -313,40 +368,48 @@ CVariant& CVariant::operator+=(const char* var)
  */
 CVariant& CVariant::operator-=(const CVariant& var)
 {
-    if ((var.type == type && type < DATATYPE_BASE_END))
+    const CVariant* pvar = &var;
+    CVariant temp;
+    if(var.type != type&&ifNumType(type)&&ifNumType(var.type))
+    {
+      temp = var;
+      temp._transform_1(type);
+      pvar = &temp;
+    }
+    if ((pvar->type == type && type < DATATYPE_BASE_END))
     {
         switch (type)
         {
             // bool type can't do + or -
         case DATATYPEKIND_SBYTE:
-            *static_cast<unsigned char*>(data) -= *static_cast<unsigned char*>(var.data);
+            *static_cast<char*>(data) -= *static_cast<char*>(pvar->data);
             break;
         case DATATYPEKIND_BYTE:
-            *static_cast<char*>(data) -= *static_cast<char*>(var.data);
+            *static_cast<unsigned char*>(data) -= *static_cast<unsigned char*>(pvar->data);
             break;
         case DATATYPEKIND_INT16:
-            *static_cast<short*>(data) -= *static_cast<short*>(var.data);
+            *static_cast<short*>(data) -= *static_cast<short*>(pvar->data);
             break;
         case DATATYPEKIND_UINT16:
-            *static_cast<unsigned short*>(data) -= *static_cast<unsigned short*>(var.data);
+            *static_cast<unsigned short*>(data) -= *static_cast<unsigned short*>(pvar->data);
             break;
         case DATATYPEKIND_INT32:
-            *static_cast<int*>(data) -= *static_cast<int*>(var.data);
+            *static_cast<int*>(data) -= *static_cast<int*>(pvar->data);
             break;
         case DATATYPEKIND_UINT32:
-            *static_cast<unsigned int*>(data) -= *static_cast<unsigned int*>(var.data);
+            *static_cast<unsigned int*>(data) -= *static_cast<unsigned int*>(pvar->data);
             break;
         case DATATYPEKIND_INT64:
-            *static_cast<long long*>(data) -= *static_cast<long long*>(var.data);
+            *static_cast<long long*>(data) -= *static_cast<long long*>(pvar->data);
             break;
         case DATATYPEKIND_UINT64:
-            *static_cast<unsigned long long*>(data) -= *static_cast<unsigned long long*>(var.data);
+            *static_cast<unsigned long long*>(data) -= *static_cast<unsigned long long*>(pvar->data);
             break;
         case DATATYPEKIND_FLOAT:
-            *static_cast<float*>(data) -= *static_cast<float*>(var.data);
+            *static_cast<float*>(data) -= *static_cast<float*>(pvar->data);
             break;
         case DATATYPEKIND_DOUBLE:
-            *static_cast<double*>(data) -= *static_cast<double*>(var.data);
+            *static_cast<double*>(data) -= *static_cast<double*>(pvar->data);
             break;
             // std::string type can't do -=
         default:
@@ -370,6 +433,17 @@ bool CVariant::operator==(const CVariant& var)
         {
             return true;
         }
+    }
+    else if(ifNumType(var.type)&&ifNumType(type))
+    { // if the two CVariant object are both numberic type, cast them to double
+      CVariant temp1 = var;
+      CVariant temp2 = *this;
+      temp1._transform_1(DATATYPEKIND_DOUBLE);
+      temp2._transform_1(DATATYPEKIND_DOUBLE);
+      if (memcmp(temp1.data, temp2.data, BASE_TYPE_SIZE[DATATYPEKIND_DOUBLE]) == 0)
+      {
+          return true;
+      }
     }
     else if (type == var.type && type == DATATYPEKIND_STRING)
     {
@@ -445,7 +519,6 @@ bool CVariant::append(const CVariant& var)
         _insert(var, getSize());
         return true;
     }
-
     return false;
 }
 
@@ -596,10 +669,10 @@ bool CVariant::setType(datatype_t tp)
         data = new bool;
         break;
     case DATATYPEKIND_SBYTE:
-        data = new unsigned char;
+        data = new char;
         break;
     case DATATYPEKIND_BYTE:
-        data = new char;
+        data = new unsigned char;
         break;
     case DATATYPEKIND_INT16:
         data = new short;
