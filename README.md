@@ -31,8 +31,12 @@ For more information, please read section 3 for more detail.
 
 </br>
 
+* Sep. 21, 2020 : Design const member function, open access to BASE_TYPE_SIZE[], add CVariant::ifXXXType()'s dynamic member function version.
+</br>
+
 * Wait to do :  
  add operator+, operator-, operator*, operator/, operator();  
+ add CVariant::toString(); 
   
 </br>
 </br>
@@ -86,22 +90,26 @@ The constructor do a deepin copy.
 
 ### (4) member function (API):
 ```cpp
-static bool ifBaseType(int type);    
+static bool ifBaseType(int type);   
+bool ifBaseType(void);  
 ```
-Check if the input type index a base type.
+Check if the input type index or this object's type a base type.
 
 ```cpp
-static bool ifNumType(int type);    
+static bool ifNumType(int type); 
+bool ifNumType(void);     
 ```
-Chack if the the input type index a numeric type (int, char, double...).
+Chack if the the input type index or this object's type a numeric type (int, char, double...).
 ```cpp
-static bool ifVectorType(int type);  
+static bool ifVectorType(int type); 
+bool ifVectorType(void);   
 ```
-Check if the input type index a vector type .
+Check if the input type index or this object's type a vector type.
 ```cpp
-static bool ifType(int type);        
+static bool ifType(int type); 
+bool ifType(void);         
 ```
-Check if the type index a vaild type
+Check if the type index or this object's type a vaild type.
 ```cpp
 bool setType(datatype_t tp); 
 ```
