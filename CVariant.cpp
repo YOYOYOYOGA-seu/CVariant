@@ -1,17 +1,17 @@
 /*
  * @Author Shi Zhangkun
  * @Date 2020-09-16 00:47:34
- * @LastEditTime 2020-09-20 03:26:48
+ * @LastEditTime 2020-09-21 06:46:01
  * @LastEditors Shi Zhangkun
  * @Description none
- * @FilePath /cVariant/CVariant.cpp
+ * @FilePath /project/api/CVariant.cpp
  */
 #include "CVariant.h"
 #include "string.h"
 #include <string>
 #include <vector>
 using namespace gva;
-const std::size_t BASE_TYPE_SIZE[] = {sizeof(bool), sizeof(char), sizeof(unsigned char),
+const std::size_t gva::BASE_TYPE_SIZE[] = {sizeof(bool), sizeof(char), sizeof(unsigned char),
                                       sizeof(short), sizeof(unsigned short), sizeof(int), sizeof(unsigned int),
                                       sizeof(long long), sizeof(unsigned long long), sizeof(float), sizeof(double),
                                       sizeof(std::string)};
@@ -425,7 +425,7 @@ CVariant &CVariant::operator-=(const CVariant &var)
  * @param {type} none
  * @retval none
  */
-bool CVariant::operator==(const CVariant &var)
+bool CVariant::operator==(const CVariant &var) const
 {
   if (type == var.type && type < DATATYPE_BASE_END && type != DATATYPEKIND_STRING) //是相同的基础类型
   {
@@ -461,7 +461,16 @@ bool CVariant::operator==(const CVariant &var)
  * @param {type} none
  * @retval none
  */
-CVariant &CVariant::operator[](std::size_t n)
+const CVariant& CVariant::operator[](std::size_t n) const
+{
+  if (!(type >= DATATYPEKIND_BOOLEAN_VECTOR && type < DATATYPE_VECTOR_END))
+    return *this;
+  else
+    return static_cast<std::vector<CVariant> *>(data)->at(n);
+}
+
+
+CVariant& CVariant::operator[](std::size_t n) 
 {
   if (!(type >= DATATYPEKIND_BOOLEAN_VECTOR && type < DATATYPE_VECTOR_END))
     return *this;
@@ -583,7 +592,7 @@ bool CVariant::erease(unsigned int first, unsigned int last)
  * @param {type} none
  * @retval none
  */
-const void *CVariant::getPtr(void)
+const void *CVariant::getPtr(void) const
 {
   if (type < DATATYPE_BASE_END)
     return data;
@@ -597,7 +606,7 @@ const void *CVariant::getPtr(void)
  * @retval none
  */
 template <char>
-const char *CVariant::getPtr(void) //单独列出获取c类型字符串指针（存储采用std::string，没有c类型字符串的datatype_t）
+const char *CVariant::getPtr(void) const //单独列出获取c类型字符串指针（存储采用std::string，没有c类型字符串的datatype_t）
 {
   if (type == DATATYPEKIND_STRING)
     return static_cast<std::string *>(data)->c_str();
@@ -720,7 +729,7 @@ bool CVariant::setType(datatype_t tp)
  * @param {type} none
  * @retval none
  */
-datatype_t CVariant::getType(void)
+datatype_t CVariant::getType(void) const
 {
   return type;
 }
@@ -731,11 +740,54 @@ datatype_t CVariant::getType(void)
  * @param {type} none
  * @retval none
  */
-unsigned int CVariant::getSize(void)
+unsigned int CVariant::getSize(void) const
 {
   if (type < DATATYPE_VECTOR_END && type >= DATATYPEKIND_BOOLEAN_VECTOR)
   {
     size = static_cast<std::vector<CVariant> *>(data)->size();
   }
   return size;
+}
+
+/**
+ * @brief  
+ * @note  
+ * @param {type} none
+ * @retval none
+ */
+bool CVariant::ifBaseType(void) const
+{
+  return ifBaseType(type);
+}
+
+/**
+ * @brief  
+ * @note  
+ * @param {type} none
+ * @retval none
+ */
+bool CVariant::ifNumType(void) const
+{
+  return ifNumType(type);
+}
+
+/**
+ * @brief  
+ * @note  
+ * @param {type} none
+ * @retval none
+ */
+bool CVariant::ifVectorType(void) const
+{
+  return ifVectorType(type);
+}
+/**
+ * @brief  
+ * @note  
+ * @param {type} none
+ * @retval none
+ */
+bool CVariant::ifType(void) const
+{
+  return ifType(type);
 }

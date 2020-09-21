@@ -1,3 +1,11 @@
+/*
+ * @Author Shi Zhangkun
+ * @Date 2020-09-18 22:48:53
+ * @LastEditTime 2020-09-21 06:59:56
+ * @LastEditors Shi Zhangkun
+ * @Description none
+ * @FilePath /cVariant/CVariant.h
+ */
 #ifndef __VARIANT_H
 #define __VARIANT_H
 #include <string>
@@ -36,11 +44,12 @@ typedef enum {
 
   /* sign a empty CVariant object */
   DATATYPEKIND_NOTYPE = 255,
-#define MAX_DATA_TYPE_INDEX  11
+
 }datatype_t;
 
 namespace gva
 {
+  extern const std::size_t BASE_TYPE_SIZE[DATATYPE_BASE_END];
   /* Used to limit the input type of a template function while allowing 
   the template function to automatically get a type number based on the 
   parameter(typedatatype_t) */
@@ -66,7 +75,7 @@ namespace gva
     datatype_t type;
     /* for base type, the size is 1; for vector type, the size is the vector size.
       It will only refreash after call CVariant::getSize() */
-    unsigned int size;  
+    mutable unsigned int size;  //mutable(const CVariant can call CVariant::getSize())
     /* insert a object to a vector type CVariant object, internal function, and must 
     check if insertable before call this function*/
     inline void _insert(CVariant& var, unsigned int locate) {
@@ -159,7 +168,6 @@ namespace gva
       abort();
       return CVariant();
     }
-    
   public:
 
     CVariant();
@@ -283,11 +291,11 @@ namespace gva
     CVariant& operator-=(const CVariant& var);
 
     /* only for base type, return true when type = type, data = data */
-    bool operator==(const CVariant& var);
+    bool operator==(const CVariant& var) const;
     
     /* for base type , return itself, for vector type, return the number n CVariant object */
     CVariant& operator[](std::size_t n);
-
+    const CVariant& operator[](std::size_t n) const; //const CVariant use
     /* insert elements to a vector type CVariant(must has the same base type) */
     bool insert(const char* var, unsigned int locate);
     template <typename T> bool insert(const T var, unsigned int locate)
@@ -353,9 +361,9 @@ namespace gva
     bool erease(unsigned int first, unsigned int last);
     
     /* Get the ptr to the origin data memory area. */
-    const void* getPtr(void);
-    template<char> const char* getPtr(void); 
-    template<typename T> const T* getPtr(void)
+    const void* getPtr(void) const;
+    template<char> const char* getPtr(void) const; 
+    template<typename T> const T* getPtr(void) const
     {
       if (static_cast<datatype_t>(dataKind<T>::type) == type)
         return static_cast<const T*>(data);
@@ -364,7 +372,7 @@ namespace gva
 
     /* Get value of a CVariant object. for a vector type, you can call as: 
     `var[i].get`.return true if success.*/
-    template<typename T>bool get(T& retVal) {
+    template<typename T>bool get(T& retVal) const {
       if (static_cast<datatype_t>(dataKind<T>::type) == type)
       {
         retVal = *static_cast<T*>(data);
@@ -376,7 +384,7 @@ namespace gva
     /* Directly return the value,but if failed, will abort the whole 
     proccess(current type of CVariant object can't cast to the given
      type T) */
-    template<typename T>T value(void) {
+    template<typename T>T value(void) const {
       if (static_cast<datatype_t>(dataKind<T>::type) == type)
       {
         return  *static_cast<T*>(data);
@@ -419,11 +427,15 @@ namespace gva
     bool setType(datatype_t tp);
 
     /* Get a CVariant object's type */
-    datatype_t getType(void);
+    datatype_t getType(void) const;
 
     /* Get a vector type CVariant object's size ( base type always 1) */
-    unsigned int getSize(void);
+    unsigned int getSize(void) const;
 
+    bool ifBaseType(void)const;
+    bool ifNumType(void)const;
+    bool ifVectorType(void)const;
+    bool ifType(void)const;
     static inline bool ifBaseType(int type) {
       return (type >= DATATYPEKIND_BOOLEAN && type < DATATYPE_BASE_END);
     }
