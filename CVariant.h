@@ -154,6 +154,11 @@ namespace gva
 
       return temp;
     }
+    static CVariant _cast_2(datatype_t tp, const std::string var) // for passing  compile (std::string can't cast)
+    {
+      abort();
+      return CVariant();
+    }
     
   public:
 
