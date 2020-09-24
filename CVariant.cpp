@@ -1,17 +1,17 @@
 /*
  * @Author Shi Zhangkun
  * @Date 2020-09-16 00:47:34
- * @LastEditTime 2020-09-21 06:46:01
+ * @LastEditTime 2020-09-23 18:28:57
  * @LastEditors Shi Zhangkun
  * @Description none
- * @FilePath /project/api/CVariant.cpp
+ * @FilePath /cVariant/CVariant.cpp
  */
 #include "CVariant.h"
 #include "string.h"
 #include <string>
 #include <vector>
 using namespace gva;
-const std::size_t gva::BASE_TYPE_SIZE[] = {sizeof(bool), sizeof(char), sizeof(unsigned char),
+const size_t gva::BASE_TYPE_SIZE[] = {sizeof(bool), sizeof(char), sizeof(unsigned char),
                                       sizeof(short), sizeof(unsigned short), sizeof(int), sizeof(unsigned int),
                                       sizeof(long long), sizeof(unsigned long long), sizeof(float), sizeof(double),
                                       sizeof(std::string)};
@@ -461,7 +461,7 @@ bool CVariant::operator==(const CVariant &var) const
  * @param {type} none
  * @retval none
  */
-const CVariant& CVariant::operator[](std::size_t n) const
+const CVariant& CVariant::operator[](size_t n) const
 {
   if (!(type >= DATATYPEKIND_BOOLEAN_VECTOR && type < DATATYPE_VECTOR_END))
     return *this;
@@ -470,7 +470,7 @@ const CVariant& CVariant::operator[](std::size_t n) const
 }
 
 
-CVariant& CVariant::operator[](std::size_t n) 
+CVariant& CVariant::operator[](size_t n) 
 {
   if (!(type >= DATATYPEKIND_BOOLEAN_VECTOR && type < DATATYPE_VECTOR_END))
     return *this;
@@ -505,6 +505,16 @@ bool CVariant::insert(const char *var, unsigned int locate)
   if (type == DATATYPEKIND_STRING_VECTOR)
   {
     std::string temp(var);
+    _insert(temp, locate);
+    return true;
+  }
+  return false;
+}
+bool CVariant::insert(const char *var, size_t n, unsigned int locate)
+{
+  if (type == DATATYPEKIND_STRING_VECTOR)
+  {
+    std::string temp(var,n);
     _insert(temp, locate);
     return true;
   }
@@ -654,6 +664,21 @@ bool CVariant::setValue(const char *value) //单独列出通过c类型字符串给字符串赋值
   return false;
 }
 
+/**
+ * @brief  
+ * @note  
+ * @param {type} none
+ * @retval none
+ */
+bool CVariant::setValue(const char *value, size_t n) //单独列出通过c类型字符串给字符串赋值（存储采用std::string）
+{
+  if (type == DATATYPEKIND_STRING)
+  {
+    static_cast<std::string *>(data)->assign(value,n);
+    return true;
+  }
+  return false;
+}
 /**
  * @brief  
  * @note  

@@ -1,11 +1,3 @@
-/*
- * @Author Shi Zhangkun
- * @Date 2020-09-18 22:48:53
- * @LastEditTime 2020-09-21 06:59:56
- * @LastEditors Shi Zhangkun
- * @Description none
- * @FilePath /cVariant/CVariant.h
- */
 #ifndef __VARIANT_H
 #define __VARIANT_H
 #include <string>
@@ -49,7 +41,7 @@ typedef enum {
 
 namespace gva
 {
-  extern const std::size_t BASE_TYPE_SIZE[DATATYPE_BASE_END];
+  extern const size_t BASE_TYPE_SIZE[DATATYPE_BASE_END];
   /* Used to limit the input type of a template function while allowing 
   the template function to automatically get a type number based on the 
   parameter(typedatatype_t) */
@@ -294,10 +286,11 @@ namespace gva
     bool operator==(const CVariant& var) const;
     
     /* for base type , return itself, for vector type, return the number n CVariant object */
-    CVariant& operator[](std::size_t n);
-    const CVariant& operator[](std::size_t n) const; //const CVariant use
+    CVariant& operator[](size_t n);
+    const CVariant& operator[](size_t n) const; //const CVariant use
     /* insert elements to a vector type CVariant(must has the same base type) */
     bool insert(const char* var, unsigned int locate);
+    bool insert(const char* var, size_t n, unsigned int locate);
     template <typename T> bool insert(const T var, unsigned int locate)
     {
       if (static_cast<datatype_t>(dataKind<T>::type + DATATYPEKIND_BOOLEAN_VECTOR) == type)
@@ -338,6 +331,7 @@ namespace gva
     base type(but must same as the input or can do a cast), the function will upgrade 
     the CVariant to vector type. */
     bool append(const char* var);
+    bool append(const char* var, size_t n);
     template<typename T>bool append(const T var)
     {
       if (static_cast<datatype_t>(dataKind<T>::type) == type ||(ifNumType(dataKind<T>::type)&&ifNumType(type)))
@@ -408,6 +402,7 @@ namespace gva
      not a copy assignment function */
     bool setValue(void* dat, size_t size);
     bool setValue(const char* value);
+    bool setValue(const char* value, size_t n = 0);
     template<typename T>bool setValue(T value) {
       if (static_cast<datatype_t>(dataKind<T>::type) == type)
       {
