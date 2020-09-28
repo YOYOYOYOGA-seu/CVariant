@@ -1,7 +1,7 @@
 /*
  * @Author Shi Zhangkun
  * @Date 2020-09-16 00:47:34
- * @LastEditTime 2020-09-23 18:28:57
+ * @LastEditTime 2020-09-28 04:58:21
  * @LastEditors Shi Zhangkun
  * @Description none
  * @FilePath /cVariant/CVariant.cpp
@@ -558,6 +558,27 @@ bool CVariant::append(const char *var)
     return true;
   }
 
+  return false;
+}
+
+/**
+ * @brief  
+ * @note  
+ * @param {type} none
+ * @retval none
+ */
+bool CVariant::append(const char *var, size_t n)
+{
+  if (type == DATATYPEKIND_STRING)
+  {
+    _upgrade();
+  }
+  if (type == DATATYPEKIND_STRING_VECTOR)
+  {
+    std::string temp(var,n);
+    _insert(temp, getSize());
+    return true;
+  }
   return false;
 }
 
