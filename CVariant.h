@@ -53,6 +53,8 @@ namespace gva
   template <>struct dataKind<unsigned short> { enum { type = DATATYPEKIND_UINT16 }; };
   template <>struct dataKind<int> { enum { type = DATATYPEKIND_INT32 }; };
   template <>struct dataKind<unsigned int> { enum { type = DATATYPEKIND_UINT32 }; };
+  template <>struct dataKind<long> { enum { type = sizeof(long) == 4 ? DATATYPEKIND_INT32:DATATYPEKIND_INT64 }; };
+  template <>struct dataKind<unsigned long> { enum { type = sizeof(long) == 4 ? DATATYPEKIND_UINT32:DATATYPEKIND_UINT64}; };
   template <>struct dataKind<long long> { enum { type = DATATYPEKIND_INT64 }; };
   template <>struct dataKind<unsigned long long> { enum { type = DATATYPEKIND_UINT64 }; };
   template <>struct dataKind<float> { enum { type = DATATYPEKIND_FLOAT }; };
