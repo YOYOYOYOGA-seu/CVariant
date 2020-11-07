@@ -64,7 +64,7 @@ CVariant(std::vector<T>& var);
 CVariant(const T* var, size_t n);
 CVariant(const CVariant& var);
 ```
-The constructor do a deepin copy.
+The copy constructor  do a shadow copy with a reference counting, and have a Copy-On-Write mechanism(equal to deepin copy but have better performance), only do a real deepin copy when change the data with reference counting big than 1. 
 
 </br>
 
@@ -76,7 +76,7 @@ The constructor do a deepin copy.
  operator=(const T var);
  operator=(const std::vector<T>& var);
  ```
- All of though assignment do deepin copy.
+ The `operator=(const CVariant& var)` same as copy constructor(Be called in copy constructor).
 * **operator+=:**  
   For a base type(not a vector type), the += is same as the base type's own operator +=; and if the CVariant object's type is a vector type, the += call the function `CVariant::append`.  
 * **operator-=:**  

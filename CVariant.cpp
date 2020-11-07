@@ -1,7 +1,7 @@
 /*
  * @Author Shi Zhangkun
  * @Date 2020-09-16 00:47:34
- * @LastEditTime 2020-09-28 04:58:21
+ * @LastEditTime 2020-11-06 21:30:40
  * @LastEditors Shi Zhangkun
  * @Description none
  * @FilePath /cVariant/CVariant.cpp
@@ -24,6 +24,7 @@ const size_t gva::BASE_TYPE_SIZE[] = {sizeof(bool), sizeof(char), sizeof(unsigne
  */
 CVariant::CVariant()
 {
+  refCount.reset();
   data = nullptr;
   type = DATATYPEKIND_NOTYPE;
   size = 0;
@@ -49,10 +50,11 @@ CVariant::CVariant(datatype_t tp)
 
 CVariant::CVariant(const CVariant &var)
 {
+  refCount.reset();
   data = nullptr;
   type = DATATYPEKIND_NOTYPE;
   size = 0;
-  operator=(var);
+  operator=(var); //do a shadow copy (copy-on-write)
 }
 /**
  * @brief
@@ -72,7 +74,7 @@ CVariant::~CVariant()
  */
 void CVariant::clear()
 {
-  if (data != nullptr)
+  if (data != nullptr && *refCount <= 1) // if no CVariant object ref this data memory, then delete it
   {
     switch (type)
     {
@@ -118,6 +120,11 @@ void CVariant::clear()
       break;
     }
   }
+  else if(refCount != nullptr)// else only change reference count
+  {
+    (*refCount)--;
+  }
+  refCount.reset();
   data = nullptr;
   size = 0;
   type = DATATYPEKIND_NOTYPE;
@@ -187,25 +194,33 @@ bool CVariant::_cast_1(datatype_t tp)
   }
   return true;
 }
+
 /**
  * @brief  
+ * @note  
+ * @param {*}
+ * @retval none
+ */
+void CVariant::_copyself(void)
+{
+  CVariant temp;
+  temp._copy(*this);
+  *this = temp;
+}
+
+/**
+ * @brief  deep copy
  * @note  
  * @param {type} none
  * @retval none
  */
-CVariant &CVariant::operator=(const CVariant &var)
+CVariant &CVariant::_copy(const CVariant &var)
 {
   clear();
-  type = var.type;
-  size = var.size;
-  if (var.data == nullptr)
+  if (var.data != nullptr)
   {
-    data = nullptr;
-    type = DATATYPEKIND_NOTYPE;
-    size = 0;
-  }
-  else
-  {
+    type = var.type;
+    size = var.size;
     switch (type)
     {
     case DATATYPEKIND_BOOLEAN:
@@ -256,6 +271,34 @@ CVariant &CVariant::operator=(const CVariant &var)
       }
       break;
     }
+    if(data != nullptr)  
+      refCount = std::make_shared<unsigned int>(1);
+  }
+  return *this;
+}
+
+/**
+ * @brief  shallow copy
+ * @note  
+ * @param {*}
+ * @retval none
+ */
+CVariant& CVariant::operator=(const CVariant& var)
+{
+  clear();
+  if (var.data == nullptr)
+  {
+    data = nullptr;
+    type = DATATYPEKIND_NOTYPE;
+    size = 0;
+  }
+  else
+  {
+    refCount = var.refCount;
+    (*refCount)++;  // ref add
+    type = var.type;
+    size = var.size;
+    data = var.data;
   }
   return *this;
 }
@@ -270,6 +313,8 @@ CVariant &CVariant::operator=(const char *var)
 {
   if (type == DATATYPEKIND_STRING && data != nullptr)
   {
+    if(*refCount > 1)
+      _copyself();
     *static_cast<std::string *>(data) = var;
   }
   else
@@ -277,6 +322,7 @@ CVariant &CVariant::operator=(const char *var)
     clear();
     type = DATATYPEKIND_STRING;
     data = new std::string(var);
+    refCount = std::make_shared<unsigned int>(1);
   }
   size = 1;
   return *this;
@@ -300,6 +346,8 @@ CVariant &CVariant::operator+=(const CVariant &var)
   }
   if ((pvar->type == type && type < DATATYPE_BASE_END))
   {
+    if(*refCount > 1)
+      _copyself();
     switch (type)
     {
       // bool type can't do + or -
@@ -353,8 +401,13 @@ CVariant &CVariant::operator+=(const CVariant &var)
  */
 CVariant &CVariant::operator+=(const char *var)
 {
+
   if (type == DATATYPEKIND_STRING)
+  {
+    if(*refCount > 1)
+      _copyself();
     *static_cast<std::string *>(data) += var;
+  }
   else if (type == DATATYPEKIND_STRING_VECTOR)
     append(var);
   return *this;
@@ -378,6 +431,8 @@ CVariant &CVariant::operator-=(const CVariant &var)
   }
   if ((pvar->type == type && type < DATATYPE_BASE_END))
   {
+    if(*refCount > 1)
+      _copyself();
     switch (type)
     {
       // bool type can't do + or -
@@ -592,6 +647,8 @@ bool CVariant::erease(unsigned int locate)
 {
   if (ifVectorType(type) && locate < static_cast<std::vector<CVariant> *>(data)->size())
   {
+    if(*refCount > 1)
+      _copyself();
     std::vector<CVariant>::iterator itr = static_cast<std::vector<CVariant> *>(data)->begin() + locate;
     static_cast<std::vector<CVariant> *>(data)->erase(itr);
     return true;
@@ -609,6 +666,8 @@ bool CVariant::erease(unsigned int first, unsigned int last)
 {
   if (ifVectorType(type) && first <= last && last < static_cast<std::vector<CVariant> *>(data)->size())
   {
+    if(*refCount > 1)
+      _copyself();
     std::vector<CVariant>::iterator ftr = static_cast<std::vector<CVariant> *>(data)->begin() + first;
     std::vector<CVariant>::iterator ltr = static_cast<std::vector<CVariant> *>(data)->begin() + last;
     static_cast<std::vector<CVariant> *>(data)->erase(ftr, ltr);
@@ -655,6 +714,8 @@ bool CVariant::setValue(void *dat, size_t size)
   {
     if (BASE_TYPE_SIZE[type] == size) //保证内存对齐
     {
+      if(*refCount > 1)
+        _copyself();
       if (type == DATATYPEKIND_STRING) //string类型不能直接copy
       {
         *static_cast<std::string *>(data) = *static_cast<std::string *>(dat);
@@ -679,6 +740,8 @@ bool CVariant::setValue(const char *value) //单独列出通过c类型字符串给字符串赋值
 {
   if (type == DATATYPEKIND_STRING)
   {
+    if(*refCount > 1)
+        _copyself();
     static_cast<std::string *>(data)->assign(value);
     return true;
   }
@@ -695,6 +758,8 @@ bool CVariant::setValue(const char *value, size_t n) //单独列出通过c类型字符串给
 {
   if (type == DATATYPEKIND_STRING)
   {
+    if(*refCount > 1)
+        _copyself();
     static_cast<std::string *>(data)->assign(value,n);
     return true;
   }
@@ -766,6 +831,8 @@ bool CVariant::setType(datatype_t tp)
     }
     break;
   }
+  if(data != nullptr)
+    refCount = std::make_shared<unsigned int>(1);
   return true;
 }
 

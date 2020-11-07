@@ -3,6 +3,7 @@
 #include <vector>
 int main(void)
 {
+  /* 基础类型 */
 	gva::CVariant test;  
 	int outputInt; 
 	double outDouble;
@@ -27,6 +28,7 @@ int main(void)
 		std::cout << "现在test是string:" << outputStr << std::endl;
 	}
 
+  /* 调用+= */
 	test = 32;
 	test += 453;
 	test += 5645;
@@ -34,12 +36,14 @@ int main(void)
 	test.get(outputInt);
 	std::cout << "现在test的值ֵ:" << outputInt << std::endl;
 
+   /* string基础类型 */
 	std::string tempStr("test str+=:");
 	test = tempStr;
-	test += "sdasda";
+	test += "sdasda"; 
 	test.get(outputStr);
 	std::cout << "现在test的值ֵ:" << outputStr << std::endl;
 
+  /* 调用append升级为向量 */
   test.append("第二项");
   test += ("第三项");
   test.append ("第四项");
@@ -51,17 +55,19 @@ int main(void)
 	}
 	std::cout << std::endl;
 
-
+   /* 调用get取数据 */
 	if(test[3].get(outDouble) == false)
 		std::cout <<"类型不符"<< std::endl;
 
+  /* 向量类型构造 */
 	gva::CVariant test2 = std::vector<short>{ 1,45,76,99 };
 	test = test2;
+
+  /* 调用insert函数 */
 	short cVctShort[] = { 122,123,124 };
 	test.insert((short)23423, 2);
 	test.insert((short)23423, 2);
 	test.insert(cVctShort,sizeof(cVctShort)/sizeof(short), 2);
-
 	short ouputShort;
   std::cout << "现在test中的值";
 	for (unsigned int i = 0; i < test.getSize(); i++)
@@ -71,6 +77,7 @@ int main(void)
 	}
   std::cout << std::endl;
 
+  /* 赋值、+= -= 、setValue()、类型转换联合测试 */
   test2 = -3;
   test = -3.14;
   test += test2;
@@ -96,6 +103,31 @@ int main(void)
 			std::cout << outDouble << ",";
 	}
   std::cout << std::endl;
+
+  /* 拷贝构造、赋值构造测试 */
+  gva::CVariant test3;
+  test3 = test2;
+  test2.append(5);
+  test2.clear();
+  std::cout << "现在test3中的值";
+	for (unsigned int i = 0; i < test3.getSize(); i++)
+	{
+		if (test3[i].get(outDouble) == true)
+			std::cout << outDouble << ",";
+	}
+  std::cout << std::endl;
+  test3 = test;
+  test = static_cast<char>('a');
+
+  test3.clear();
+  test3 = gva::CVariant(test);
+  test = static_cast<char>('c');
+  test.clear();
+  std::cout << "现在test3中的值";
+    std::cout << test3.value<char>() << std::endl;
+  std::cout << std::endl;
+  test3.clear();
+
 	while (1)
 	{
 

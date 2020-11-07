@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include <memory>
 typedef enum {
   /* base data type ( compatibility with open62541) */
   DATATYPEKIND_BOOLEAN = 0,
@@ -66,6 +67,7 @@ namespace gva
   class CVariant {
   private:
     void* data;
+    std::shared_ptr<unsigned int> refCount;
     datatype_t type;
     /* for base type, the size is 1; for vector type, the size is the vector size.
       It will only refreash after call CVariant::getSize() */
@@ -75,10 +77,11 @@ namespace gva
     inline void _insert(CVariant& var, unsigned int locate) {
         unsigned int n = var.getSize();
         CVariant temp;
+        if(*refCount > 1)
+          _copyself();
         for (unsigned int i = 0; i < n; i++)
         {
           temp = var[i];
-          
           static_cast<std::vector<CVariant>*>(data)->insert(static_cast<std::vector<CVariant>*>(data)->begin()+locate, temp);
           locate++;
         }
@@ -87,10 +90,14 @@ namespace gva
     template <typename T>inline void _insert(const T var, unsigned int locate) {
       CVariant temp;
       temp = (var);
+      if(*refCount > 1)
+        _copyself();
       static_cast<std::vector<CVariant>*>(data)->insert(static_cast<std::vector<CVariant>*>(data)->begin()+locate, temp);
       getSize(); //refreash size
     }
     template <typename T> inline void _insert(const std::vector<T>& var, unsigned int locate) {
+      if(*refCount > 1)
+        _copyself();
       for (int i = 0; i < var.size(); i++)
       {
         CVariant temp;
@@ -101,6 +108,8 @@ namespace gva
       getSize(); //refreash size
     }
     template <typename T> inline void _insert(const T* var, unsigned int n, unsigned int locate) {
+      if(*refCount > 1)
+        _copyself();
       for (unsigned int i = 0; i < n; i++)
       {
         CVariant temp;
@@ -110,6 +119,11 @@ namespace gva
       }
       getSize(); //refreash size
     }
+    /* deep copy */
+    CVariant &_copy(const CVariant& var);
+
+    /* do a deep copy of itself(called before change the data while the refCount > 1) */
+    void _copyself(void);
 
     /* upgrade a base type CVariant obj to a corresponding vetor type obj */
     void _upgrade(void);
@@ -193,6 +207,7 @@ namespace gva
         clear();
         type = static_cast<datatype_t>(dataKind<T>::type+ DATATYPEKIND_BOOLEAN_VECTOR);
         data = new std::vector<CVariant>;
+        refCount = std::make_shared<unsigned int>(1);
         size = n;
         CVariant temp;
         for (int i = 0; i < n; i++)
@@ -215,6 +230,8 @@ namespace gva
       {
         if (static_cast<datatype_t>(dataKind<T>::type) == type && data != nullptr)
         {
+          if(*refCount > 1)
+            _copyself();
           *static_cast<T*>(data) = var;
         }
         else
@@ -222,6 +239,7 @@ namespace gva
           clear();
           type = static_cast<datatype_t>(dataKind<T>::type);
           data = new T(var);
+          refCount = std::make_shared<unsigned int>(1);
         }
         size = 1;
       }
@@ -234,6 +252,7 @@ namespace gva
           clear();
           type = static_cast<datatype_t>(dataKind<T>::type + DATATYPEKIND_BOOLEAN_VECTOR);
           data = new std::vector<CVariant>;
+          refCount = std::make_shared<unsigned int>(1);
           size = var.size();
           CVariant temp;
           for (unsigned int i = 0; i < var.size(); i++)
@@ -251,7 +270,11 @@ namespace gva
     template<typename T> CVariant& operator+=(T var)
     {
       if (static_cast<datatype_t>(dataKind<T>::type) == type && type < DATATYPE_BASE_END)
+      {
+        if(*refCount > 1)
+          _copyself();
         *static_cast<T*>(data) += var;
+      }
       else if (ifNumType(dataKind<T>::type) && ifNumType(type))   // numerical value can transform
       {
         CVariant temp = _cast_2(type,var);
@@ -273,7 +296,11 @@ namespace gva
     template<typename T> CVariant& operator-=(T var)
     {
       if (static_cast<datatype_t>(dataKind<T>::type) == type && type < DATATYPE_BASE_END)
+      {
+        if(*refCount > 1)
+          _copyself();
         *static_cast<T*>(data) -= var;
+      }   
       else if (ifNumType(dataKind<T>::type) && ifNumType(type))   // numerical value can transform
       {
         CVariant temp = _cast_2(type,var);
@@ -408,6 +435,8 @@ namespace gva
     template<typename T>bool setValue(T value) {
       if (static_cast<datatype_t>(dataKind<T>::type) == type)
       {
+        if(*refCount > 1)
+          _copyself();
         *static_cast<T*>(data) = value;
         return true;
       }
