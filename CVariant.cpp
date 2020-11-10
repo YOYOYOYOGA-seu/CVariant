@@ -1,7 +1,7 @@
 /*
  * @Author Shi Zhangkun
  * @Date 2020-09-16 00:47:34
- * @LastEditTime 2020-11-06 21:30:40
+ * @LastEditTime 2020-11-09 23:15:06
  * @LastEditors Shi Zhangkun
  * @Description none
  * @FilePath /cVariant/CVariant.cpp
@@ -38,6 +38,10 @@ CVariant::CVariant()
  */
 CVariant::CVariant(datatype_t tp)
 {
+  refCount.reset();
+  data = nullptr;
+  type = DATATYPEKIND_NOTYPE;
+  size = 0;
   setType(tp);
 }
 
