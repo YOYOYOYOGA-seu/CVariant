@@ -42,7 +42,7 @@ typedef enum {
 
 namespace gva
 {
-  extern const size_t BASE_TYPE_SIZE[DATATYPE_BASE_END];
+  extern const std::size_t BASE_TYPE_SIZE[DATATYPE_BASE_END];
   /* Used to limit the input type of a template function while allowing 
   the template function to automatically get a type number based on the 
   parameter(typedatatype_t) */
@@ -315,11 +315,11 @@ namespace gva
     bool operator==(const CVariant& var) const;
     
     /* for base type , return itself, for vector type, return the number n CVariant object */
-    CVariant& operator[](size_t n);
-    const CVariant& operator[](size_t n) const; //const CVariant use
+    CVariant& operator[](std::size_t n);
+    const CVariant& operator[](std::size_t n) const; //const CVariant use
     /* insert elements to a vector type CVariant(must has the same base type) */
     bool insert(const char* var, unsigned int locate);
-    bool insert(const char* var, size_t n, unsigned int locate);
+    bool insert(const char* var, std::size_t n, unsigned int locate);
     template <typename T> bool insert(const T var, unsigned int locate)
     {
       if (static_cast<datatype_t>(dataKind<T>::type + DATATYPEKIND_BOOLEAN_VECTOR) == type)
@@ -360,7 +360,7 @@ namespace gva
     base type(but must same as the input or can do a cast), the function will upgrade 
     the CVariant to vector type. */
     bool append(const char* var);
-    bool append(const char* var, size_t n);
+    bool append(const char* var, std::size_t n);
     template<typename T>bool append(const T var)
     {
       if (static_cast<datatype_t>(dataKind<T>::type) == type ||(ifNumType(dataKind<T>::type)&&ifNumType(type)))
@@ -429,9 +429,9 @@ namespace gva
      form object's current type and can't do a static_cast, the operate will 
      not success. In other words, this function will do type checking and 
      not a copy assignment function */
-    bool setValue(void* dat, size_t size);
+    bool setValue(void* dat, std::size_t size);
     bool setValue(const char* value);
-    bool setValue(const char* value, size_t n = 0);
+    bool setValue(const char* value, std::size_t n = 0);
     template<typename T>bool setValue(T value) {
       if (static_cast<datatype_t>(dataKind<T>::type) == type)
       {

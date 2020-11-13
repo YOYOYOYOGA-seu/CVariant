@@ -61,7 +61,7 @@ CVariant();
 CVariant(datatype_t type);
 CVariant(const T var);
 CVariant(std::vector<T>& var);
-CVariant(const T* var, size_t n);
+CVariant(const T* var, std::size_t n);
 CVariant(const CVariant& var);
 ```
 The copy constructor  do a shadow copy with a reference counting, and have a Copy-On-Write mechanism(equal to deepin copy but have better performance), only do a real deepin copy when change the data with reference counting big than 1. 

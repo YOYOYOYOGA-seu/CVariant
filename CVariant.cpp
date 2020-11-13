@@ -1,17 +1,17 @@
 /*
  * @Author Shi Zhangkun
  * @Date 2020-09-16 00:47:34
- * @LastEditTime 2020-11-09 23:15:06
+ * @LastEditTime 2020-11-12 19:50:14
  * @LastEditors Shi Zhangkun
  * @Description none
  * @FilePath /cVariant/CVariant.cpp
  */
 #include "CVariant.h"
-#include "string.h"
+#include <cstring>
 #include <string>
 #include <vector>
 using namespace gva;
-const size_t gva::BASE_TYPE_SIZE[] = {sizeof(bool), sizeof(char), sizeof(unsigned char),
+const std::size_t gva::BASE_TYPE_SIZE[] = {sizeof(bool), sizeof(char), sizeof(unsigned char),
                                       sizeof(short), sizeof(unsigned short), sizeof(int), sizeof(unsigned int),
                                       sizeof(long long), sizeof(unsigned long long), sizeof(float), sizeof(double),
                                       sizeof(std::string)};
@@ -488,7 +488,7 @@ bool CVariant::operator==(const CVariant &var) const
 {
   if (type == var.type && type < DATATYPE_BASE_END && type != DATATYPEKIND_STRING) //是相同的基础类型
   {
-    if (memcmp(data, var.data, BASE_TYPE_SIZE[type]) == 0)
+    if (std::memcmp(data, var.data, BASE_TYPE_SIZE[type]) == 0)
     {
       return true;
     }
@@ -499,7 +499,7 @@ bool CVariant::operator==(const CVariant &var) const
     CVariant temp2 = *this;
     temp1._cast_1(DATATYPEKIND_DOUBLE);
     temp2._cast_1(DATATYPEKIND_DOUBLE);
-    if (memcmp(temp1.data, temp2.data, BASE_TYPE_SIZE[DATATYPEKIND_DOUBLE]) == 0)
+    if (std::memcmp(temp1.data, temp2.data, BASE_TYPE_SIZE[DATATYPEKIND_DOUBLE]) == 0)
     {
       return true;
     }
@@ -520,7 +520,7 @@ bool CVariant::operator==(const CVariant &var) const
  * @param {type} none
  * @retval none
  */
-const CVariant& CVariant::operator[](size_t n) const
+const CVariant& CVariant::operator[](std::size_t n) const
 {
   if (!(type >= DATATYPEKIND_BOOLEAN_VECTOR && type < DATATYPE_VECTOR_END))
     return *this;
@@ -529,7 +529,7 @@ const CVariant& CVariant::operator[](size_t n) const
 }
 
 
-CVariant& CVariant::operator[](size_t n) 
+CVariant& CVariant::operator[](std::size_t n) 
 {
   if (!(type >= DATATYPEKIND_BOOLEAN_VECTOR && type < DATATYPE_VECTOR_END))
     return *this;
@@ -569,7 +569,7 @@ bool CVariant::insert(const char *var, unsigned int locate)
   }
   return false;
 }
-bool CVariant::insert(const char *var, size_t n, unsigned int locate)
+bool CVariant::insert(const char *var, std::size_t n, unsigned int locate)
 {
   if (type == DATATYPEKIND_STRING_VECTOR)
   {
@@ -626,7 +626,7 @@ bool CVariant::append(const char *var)
  * @param {type} none
  * @retval none
  */
-bool CVariant::append(const char *var, size_t n)
+bool CVariant::append(const char *var, std::size_t n)
 {
   if (type == DATATYPEKIND_STRING)
   {
@@ -712,7 +712,7 @@ const char *CVariant::getPtr(void) const //单独列出获取c类型字符串指针（存储采用
  * @param {type} none
  * @retval none
  */
-bool CVariant::setValue(void *dat, size_t size)
+bool CVariant::setValue(void *dat, std::size_t size)
 {
   if (type < DATATYPE_BASE_END) //基础数据类型才可以设置值
   {
@@ -726,7 +726,7 @@ bool CVariant::setValue(void *dat, size_t size)
       }
       else
       {
-        memcpy(data, dat, size);
+        std::memcpy(data, dat, size);
       }
       return true;
     }
@@ -758,7 +758,7 @@ bool CVariant::setValue(const char *value) //单独列出通过c类型字符串给字符串赋值
  * @param {type} none
  * @retval none
  */
-bool CVariant::setValue(const char *value, size_t n) //单独列出通过c类型字符串给字符串赋值（存储采用std::string）
+bool CVariant::setValue(const char *value, std::size_t n) //单独列出通过c类型字符串给字符串赋值（存储采用std::string）
 {
   if (type == DATATYPEKIND_STRING)
   {
