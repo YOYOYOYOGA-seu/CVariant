@@ -34,6 +34,9 @@ For more information, please read section 3 for more detail.
 * Sep. 21, 2020 : Design const member function, open access to BASE_TYPE_SIZE[], add CVariant::ifXXXType()'s dynamic member function version.
 </br>
 
+* Jan. 6, 2021 : add function template<T> operator T(), now can use statements like `double a = varObj` to cast from CVariant to support base type.
+</br>
+
 * Wait to do :  
  add operator+, operator-, operator*, operator/, operator();  
  add CVariant::toString(); 
@@ -85,7 +88,8 @@ The copy constructor  do a shadow copy with a reference counting, and have a Cop
   only for base type CVariant compare, return true when `type = type(or can do a cast)`, `data = data`.
 * **operator[]:**  
   for base type , return itself, for vector type, return the number n CVariant object. 
-
+* **template<typename T> operator T:**  
+  to cast from CVariant to support base type, can use statements like `double a = varObj` .  
 </br>
 
 ### (4) member function (API):
@@ -208,8 +212,15 @@ You must pay attention that setValue is different form operator=, while operator
 ```cpp
 int a = var3.value<int>();    // do a cast (double to int and return it)
 double b = var2.setValue<double>();   // do a cast ( from char to double and return it)
+function(var3.value<int>(),var2.setValue<double>());  //transfer parameters 
 ...
 ```
+also, a more convenient method can be used when assignment to base type variable:  
+```cpp
+int a = var3;
+double b = var2;
+```
+the statement will call `template<typename T> operator T() const` , which packaging the function CVariant::value().  CVariant
 You must pay attention when the cast is invaild(fail) among program running time, it will cause the program abort. So recommend to use `CVariant::get` like `if(var3.get(a) == false) return;`.
 
 </br>

@@ -15,11 +15,14 @@ int main(void)
 		std::cout << "现在test是double:"<< outDouble<<std::endl;
 	}
 	test = 23213; 
+  
 	if (test.getType() == static_cast<datatype_t>(gva::dataKind<int>::type))
 	{
 		test.get(outputInt);
 		std::cout << "现在test是Int:" << outputInt << std::endl;
 	}
+
+  
 
 	test = "string test"; 
 	if (test.getType() == static_cast<datatype_t>(gva::dataKind<std::string>::type))
@@ -90,6 +93,9 @@ int main(void)
   test.setValue(43);
   std::cout <<test.value<double>()<< std::endl;
 
+  double castTest = test;
+  std::cout << castTest << std::endl;
+
   test = static_cast<char>(3);
   test2 = 3.00000000;
   if(test == test2)
@@ -127,6 +133,7 @@ int main(void)
     std::cout << test3.value<char>() << std::endl;
   std::cout << std::endl;
   test3.clear();
+
 
 	while (1)
 	{

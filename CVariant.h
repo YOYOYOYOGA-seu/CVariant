@@ -263,6 +263,14 @@ namespace gva
         }
         return *this;
     }
+
+    /** cast to another base type value ,a packaging of CVariant::value<T>()
+     * warning!! call CVariant::value(), so if cast failed will case process abort.
+     */
+    template<typename T> operator T() const
+    {
+      return value<T>();
+    }
     
     /* for base type , it amount to the data type's own +=(like int += int; string+=string;)
       for a vector type, it amount to call CVariant::append*/
