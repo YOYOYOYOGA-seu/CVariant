@@ -1,3 +1,11 @@
+/*
+ * @Author Shi Zhangkun
+ * @Date 2021-01-05 20:23:48
+ * @LastEditTime 2021-02-23 16:17:21
+ * @LastEditors Shi Zhangkun
+ * @Description none
+ * @FilePath /cVariant/CVariant.h
+ */
 #ifndef __VARIANT_H
 #define __VARIANT_H
 #include <string>

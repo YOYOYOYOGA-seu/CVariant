@@ -1,7 +1,7 @@
 /*
  * @Author Shi Zhangkun
  * @Date 2020-09-16 00:47:34
- * @LastEditTime 2020-11-12 19:50:14
+ * @LastEditTime 2021-02-23 16:22:33
  * @LastEditors Shi Zhangkun
  * @Description none
  * @FilePath /cVariant/CVariant.cpp
@@ -509,6 +509,28 @@ bool CVariant::operator==(const CVariant &var) const
     if (strcmp(static_cast<std::string *>(data)->c_str(), static_cast<std::string *>(var.data)->c_str()) == 0)
     {
       return true;
+    }
+  }
+  else if(type == var.type)
+  {
+    if(ifVectorType(type) && ifVectorType(var.type))
+    {
+      auto& vct1 = *static_cast<std::vector<CVariant>*>(data);
+      auto& vct2 = *static_cast<std::vector<CVariant>*>(var.data);
+      auto itor1 = vct1.begin();
+      auto itor2 = vct2.begin();
+      while(itor1 != vct1.end() && itor2 != vct2.end())
+      {
+        if(*itor1 == *itor2)
+        {
+          itor1++; itor2++;
+          continue;
+        }
+        else
+          break;
+      }
+      if(itor1 == vct1.end() && itor1 == vct1.end())
+        return true;
     }
   }
   return false;

@@ -101,6 +101,12 @@ int main(void)
   if(test == test2)
     std::cout <<"test == test2"<< std::endl;
 
+  std::vector<int> strList1 = {"a", "b", "csqada"};
+  test = strList1;
+  test2 = strList1;
+  if(test == test2)
+    std::cout <<"test == test2 (vector compare)"<< std::endl;
+
   test2.append(2);
   std::cout << "现在test2中的值";
 	for (unsigned int i = 0; i < test2.getSize(); i++)
