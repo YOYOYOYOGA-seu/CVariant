@@ -1,7 +1,7 @@
 /*
  * @Author Shi Zhangkun
  * @Date 2020-09-16 00:47:34
- * @LastEditTime 2021-04-23 16:34:35
+ * @LastEditTime 2021-04-23 16:49:01
  * @LastEditors Shi Zhangkun
  * @Description none
  * @FilePath /cVariant/CVariant.cpp
@@ -771,7 +771,7 @@ std::string CVariant::toString(const char* fmt) const
     auto point = ret.find('.');
     if(point != ret.npos)
     {
-      while(ret.size())
+      while(ret.size() > point)
       {
         if(ret.back() != '0' && ret.back() != '.') break;
         ret.pop_back();

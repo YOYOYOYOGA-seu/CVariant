@@ -151,7 +151,7 @@ int main(void)
   test = 436346.324233123;
   std::cout << "toString :" << test.toString() << std::endl;
   std::cout << "toString prec = 3:" << test.toString(3) << std::endl;
-  std::vector<double> doubleList = {436346.324233123, 3432.5464, -12312.43, 34534.123};
+  std::vector<double> doubleList = {436346.324233123, 3432.5464, -12312.43, 34534.123,0.0002, -0.0001, -0.0000000000};
   test = doubleList;
   std::cout << "toString :" << test.toString("trunc") << std::endl;
   test = strList1;
