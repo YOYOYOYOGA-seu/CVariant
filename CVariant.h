@@ -1,9 +1,9 @@
 /*
  * @Author Shi Zhangkun
  * @Date 2021-01-05 20:23:48
- * @LastEditTime 2021-04-23 16:07:37
+ * @LastEditTime 2021-04-23 16:38:09
  * @LastEditors Shi Zhangkun
- * @Description none
+ * @Description https://github.com/YOYOYOYOGA-seu/CVariant
  * @FilePath /cVariant/CVariant.h
  */
 #ifndef __VARIANT_H
@@ -461,6 +461,7 @@ namespace gva
 
     /* cast CVariant to string for print or other use 
      * fmt : "hex" -> cast number type CVariant to hex format string;
+     *       "trunc" -> auto trunc the tail zero after decimal point.
      * prec : the number of digits after the decimal point be keeped
      */
     std::string toString(const char* fmt) const;

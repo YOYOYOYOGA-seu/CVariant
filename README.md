@@ -145,6 +145,7 @@ Return the formated string of the CVariant, and can config by input `fmt` and `p
 | fmt | mean |
 |-----|------|
 |“hex”|out put as hex format|
+|“trunc”|auto trunc the tail zero after decimal point|
 
 ```cpp
 const T* getPtr(void);       

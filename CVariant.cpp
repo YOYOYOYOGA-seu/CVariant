@@ -1,7 +1,7 @@
 /*
  * @Author Shi Zhangkun
  * @Date 2020-09-16 00:47:34
- * @LastEditTime 2021-04-23 15:54:54
+ * @LastEditTime 2021-04-23 16:34:35
  * @LastEditors Shi Zhangkun
  * @Description none
  * @FilePath /cVariant/CVariant.cpp
@@ -738,30 +738,46 @@ const char *CVariant::getPtr(void) const //单独列出获取c类型字符串指针（存储采用
 std::string CVariant::toString(const char* fmt) const
 {
   char buf[32] = {0};
-  if(std::strcmp(fmt,"hex"))
+  if(ifVectorType()) //向量型，直接递归
+  {
+    std::string ret;
+    auto sz = getSize();
+    ret = "[";
+    for(std::size_t i = 0; i < sz; i++)
+    {
+      if(i == 0) ret += '\"';
+      else ret += ", \"";
+      ret += operator[](i).toString(fmt);
+      ret += "\"";
+    }
+    ret +="]";
+    return ret;
+  }
+
+  if(std::strcmp(fmt,"hex") == 0) //fmt -> "nex"
   {
     if(ifNumType() && type <= DATATYPEKIND_UINT32)
       std::sprintf(buf,"%x", value<unsigned int>());
     else if(ifNumType() && type <= DATATYPEKIND_UINT64)
       std::sprintf(buf,"%llx", value<unsigned long long>());
-    else if(ifNumType(type - DATATYPEKIND_BOOLEAN_VECTOR)) //向量型
-    {
-      std::string ret;
-      auto sz = getSize();
-      ret = "[";
-      for(std::size_t i = 0; i < sz; i++)
-      {
-        if(i == 0) ret += '\"';
-        else ret += ", \"";
-        ret += operator[](i).toString(fmt);
-        ret += "\"";
-      }
-      ret +="]";
-      return ret;
-    }
     else //其他，不支持hex的类型
       return toString();
     return std::string(buf);
+  }
+  else if(std::strcmp(fmt,"trunc") == 0 && (type == DATATYPEKIND_FLOAT || type == DATATYPEKIND_DOUBLE)) //fmt -> "trunc"
+  {
+    std::string ret;
+    ret = toString();
+    auto point = ret.find('.');
+    if(point != ret.npos)
+    {
+      while(ret.size())
+      {
+        if(ret.back() != '0' && ret.back() != '.') break;
+        ret.pop_back();
+      }
+    }
+    return ret;
   }
 
   return toString(); //fmt无法识别，调用默认toString()函数
@@ -776,20 +792,9 @@ std::string CVariant::toString(const char* fmt) const
 std::string CVariant::toString(int prec) const
 {
   std::string ret;
-  if(prec >= 0 && (type == DATATYPEKIND_FLOAT || type == DATATYPEKIND_DOUBLE)) 
+  if(ifVectorType()) //向量型，直接递归
   {
-    auto temp = value<double>();
-    std::string ret = "%.";
-    ret += std::to_string(prec) + "lf";
-    auto bufSize = snprintf(NULL, 0, ret.c_str(), temp);
-    char* buf = new char[bufSize];
-    sprintf(buf, ret.c_str(), temp);
-    ret = std::string(buf);
-    delete[] buf;
-    return ret;
-  }
-  else if(prec >= 0 && (type == DATATYPEKIND_FLOAT_VECTOR || type == DATATYPEKIND_DOUBLE_VECTOR))
-  {
+    std::string ret;
     auto sz = getSize();
     ret = "[";
     for(std::size_t i = 0; i < sz; i++)
@@ -800,6 +805,19 @@ std::string CVariant::toString(int prec) const
       ret += "\"";
     }
     ret +="]";
+    return ret;
+  }
+
+  if(prec >= 0 && (type == DATATYPEKIND_FLOAT || type == DATATYPEKIND_DOUBLE)) 
+  {
+    auto temp = value<double>();
+    std::string ret = "%.";
+    ret += std::to_string(prec) + "lf";
+    auto bufSize = snprintf(NULL, 0, ret.c_str(), temp);
+    char* buf = new char[bufSize];
+    sprintf(buf, ret.c_str(), temp);
+    ret = std::string(buf);
+    delete[] buf;
     return ret;
   }
   return toString();
