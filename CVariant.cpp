@@ -1,9 +1,9 @@
 /*
  * @Author Shi Zhangkun
  * @Date 2020-09-16 00:47:34
- * @LastEditTime 2021-04-23 16:49:01
+ * @LastEditTime 2021-04-23 18:49:47
  * @LastEditors Shi Zhangkun
- * @Description none
+ * @Description https://github.com/YOYOYOYOGA-seu/CVariant
  * @FilePath /cVariant/CVariant.cpp
  */
 #include "CVariant.h"
@@ -51,7 +51,6 @@ CVariant::CVariant(datatype_t tp)
  * @param {type} none
  * @retval none
  */
-
 CVariant::CVariant(const CVariant &var)
 {
   refCount.reset();
@@ -60,6 +59,7 @@ CVariant::CVariant(const CVariant &var)
   size = 0;
   operator=(var); //do a shadow copy (copy-on-write)
 }
+
 /**
  * @brief
  * @note
@@ -70,6 +70,7 @@ CVariant::~CVariant()
 {
   clear();
 }
+
 /**
  * @brief
  * @note
@@ -144,7 +145,6 @@ void CVariant::_upgrade(void)
 {
   if (type < DATATYPE_BASE_END)
   {
-
     CVariant temp = *this;
     setType(static_cast<datatype_t>(type + DATATYPEKIND_BOOLEAN_VECTOR));
     _insert(temp, 0);
@@ -527,7 +527,9 @@ bool CVariant::operator==(const CVariant &var) const
           continue;
         }
         else
+        {
           break;
+        }
       }
       if(itor1 == vct1.end() && itor1 == vct1.end())
         return true;
@@ -773,7 +775,8 @@ std::string CVariant::toString(const char* fmt) const
     {
       while(ret.size() > point)
       {
-        if(ret.back() != '0' && ret.back() != '.') break;
+        if(ret.back() != '0' && ret.back() != '.') 
+          break;
         ret.pop_back();
       }
     }
@@ -799,8 +802,10 @@ std::string CVariant::toString(int prec) const
     ret = "[";
     for(std::size_t i = 0; i < sz; i++)
     {
-      if(i == 0) ret += '\"';
-      else ret += ", \"";
+      if(i == 0) 
+        ret += '\"';
+      else 
+        ret += ", \"";
       ret += operator[](i).toString(prec);
       ret += "\"";
     }
@@ -858,14 +863,15 @@ std::string CVariant::toString(void) const
     ret = "[";
     for(std::size_t i = 0; i < sz; i++)
     {
-      if(i == 0) ret += '\"';
-      else ret += ", \"";
+      if(i == 0) 
+        ret += '\"';
+      else 
+        ret += ", \"";
       ret += operator[](i).toString();
       ret += "\"";
     }
     ret +="]";
-  }
-  
+  } 
   return ret;
 }
 
@@ -908,7 +914,7 @@ bool CVariant::setValue(const char *value) //µ¥¶ÀÁÐ³öÍ¨¹ýcÀàÐÍ×Ö·û´®¸ø×Ö·û´®¸³Öµ
   if (type == DATATYPEKIND_STRING)
   {
     if(*refCount > 1)
-        _copyself();
+      _copyself();
     static_cast<std::string *>(data)->assign(value);
     return true;
   }
@@ -926,7 +932,7 @@ bool CVariant::setValue(const char *value, std::size_t n) //µ¥¶ÀÁÐ³öÍ¨¹ýcÀàÐÍ×Ö·
   if (type == DATATYPEKIND_STRING)
   {
     if(*refCount > 1)
-        _copyself();
+      _copyself();
     static_cast<std::string *>(data)->assign(value,n);
     return true;
   }
@@ -985,7 +991,6 @@ bool CVariant::setType(datatype_t tp)
   case DATATYPEKIND_STRING:
     data = new std::string;
     break;
-
   default:
     size = 0;
     if (type < DATATYPE_VECTOR_END && type >= DATATYPEKIND_BOOLEAN_VECTOR)
