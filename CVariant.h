@@ -1,7 +1,7 @@
 /*
  * @Author Shi Zhangkun
  * @Date 2021-01-05 20:23:48
- * @LastEditTime 2021-04-23 14:05:30
+ * @LastEditTime 2021-04-23 16:07:37
  * @LastEditors Shi Zhangkun
  * @Description none
  * @FilePath /cVariant/CVariant.h
@@ -458,6 +458,14 @@ namespace gva
       throw err;
       return 0;
     }
+
+    /* cast CVariant to string for print or other use 
+     * fmt : "hex" -> cast number type CVariant to hex format string;
+     * prec : the number of digits after the decimal point be keeped
+     */
+    std::string toString(const char* fmt) const;
+    std::string toString(int prec) const;
+    std::string toString(void) const;
     
     /* Set a CVariant object's value, different form operator = ,it can't
      change the CVariant object's type, so if the input's type is different 

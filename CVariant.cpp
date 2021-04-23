@@ -1,7 +1,7 @@
 /*
  * @Author Shi Zhangkun
  * @Date 2020-09-16 00:47:34
- * @LastEditTime 2021-02-23 16:22:33
+ * @LastEditTime 2021-04-23 15:54:54
  * @LastEditors Shi Zhangkun
  * @Description none
  * @FilePath /cVariant/CVariant.cpp
@@ -726,6 +726,129 @@ const char *CVariant::getPtr(void) const //单独列出获取c类型字符串指针（存储采用
 {
   if (type == DATATYPEKIND_STRING)
     return static_cast<std::string *>(data)->c_str();
+}
+
+
+/**
+ * @brief  
+ * @note  
+ * @param {*}
+ * @retval none
+ */
+std::string CVariant::toString(const char* fmt) const
+{
+  char buf[32] = {0};
+  if(std::strcmp(fmt,"hex"))
+  {
+    if(ifNumType() && type <= DATATYPEKIND_UINT32)
+      std::sprintf(buf,"%x", value<unsigned int>());
+    else if(ifNumType() && type <= DATATYPEKIND_UINT64)
+      std::sprintf(buf,"%llx", value<unsigned long long>());
+    else if(ifNumType(type - DATATYPEKIND_BOOLEAN_VECTOR)) //向量型
+    {
+      std::string ret;
+      auto sz = getSize();
+      ret = "[";
+      for(std::size_t i = 0; i < sz; i++)
+      {
+        if(i == 0) ret += '\"';
+        else ret += ", \"";
+        ret += operator[](i).toString(fmt);
+        ret += "\"";
+      }
+      ret +="]";
+      return ret;
+    }
+    else //其他，不支持hex的类型
+      return toString();
+    return std::string(buf);
+  }
+
+  return toString(); //fmt无法识别，调用默认toString()函数
+}
+
+/**
+ * @brief  
+ * @note  
+ * @param {*}
+ * @retval none
+ */
+std::string CVariant::toString(int prec) const
+{
+  std::string ret;
+  if(prec >= 0 && (type == DATATYPEKIND_FLOAT || type == DATATYPEKIND_DOUBLE)) 
+  {
+    auto temp = value<double>();
+    std::string ret = "%.";
+    ret += std::to_string(prec) + "lf";
+    auto bufSize = snprintf(NULL, 0, ret.c_str(), temp);
+    char* buf = new char[bufSize];
+    sprintf(buf, ret.c_str(), temp);
+    ret = std::string(buf);
+    delete[] buf;
+    return ret;
+  }
+  else if(prec >= 0 && (type == DATATYPEKIND_FLOAT_VECTOR || type == DATATYPEKIND_DOUBLE_VECTOR))
+  {
+    auto sz = getSize();
+    ret = "[";
+    for(std::size_t i = 0; i < sz; i++)
+    {
+      if(i == 0) ret += '\"';
+      else ret += ", \"";
+      ret += operator[](i).toString(prec);
+      ret += "\"";
+    }
+    ret +="]";
+    return ret;
+  }
+  return toString();
+}
+
+/**
+ * @brief  
+ * @note  
+ * @param {*}
+ * @retval none
+ */
+std::string CVariant::toString(void) const
+{
+  std::string ret;
+  if(type == DATATYPEKIND_STRING)
+    return value<std::string>();
+  else if(type == DATATYPEKIND_BOOLEAN)
+    ret = value<bool>() ? "true" : "false";
+  else if(type == DATATYPEKIND_SBYTE)
+    ret = value<char>();
+  else if(type >= DATATYPEKIND_BYTE && type <= DATATYPEKIND_INT32)
+    ret = std::to_string(value<int>());
+  else if(type >= DATATYPEKIND_BYTE && type <= DATATYPEKIND_INT32)
+    ret = std::to_string(value<int>());
+  else if(type == DATATYPEKIND_UINT32)
+    ret = std::to_string(value<unsigned int>());
+  else if(type == DATATYPEKIND_INT64)
+    ret = std::to_string(value<long long>());
+  else if(type == DATATYPEKIND_UINT64)
+    ret = std::to_string(value<unsigned long long>());
+  else if(type == DATATYPEKIND_FLOAT)
+    ret = std::to_string(value<float>());
+  else if(type == DATATYPEKIND_DOUBLE)
+    ret = std::to_string(value<double>());
+  else if(ifVectorType())
+  {
+    auto sz = getSize();
+    ret = "[";
+    for(std::size_t i = 0; i < sz; i++)
+    {
+      if(i == 0) ret += '\"';
+      else ret += ", \"";
+      ret += operator[](i).toString();
+      ret += "\"";
+    }
+    ret +="]";
+  }
+  
+  return ret;
 }
 
 /**

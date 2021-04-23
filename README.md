@@ -22,24 +22,22 @@ For more information, please read section 3 for more detail.
 </br>
 
 ## 2. Update log
+
 </br>
 
 * Sep. 19, 2020 : Upload repositories.  
-</br>
 
 * Sep. 20, 2020 : Add function `T value(void)`, `bool ifNumType(int type)`, add auto dynamicly cast  mechanism, now will do a auto cast between numeric type value in some operates.  
 
-</br>
-
 * Sep. 21, 2020 : Design const member function, open access to BASE_TYPE_SIZE[], add CVariant::ifXXXType()'s dynamic member function version.
-</br>
 
 * Jan. 6, 2021 : add function template<T> operator T(), now can use statements like `double a = varObj` to cast from CVariant to support base type.
-</br>
 
+* Apr. 23, 2021 : add `CVariant::toString()` function grop.    
+  
 * Wait to do :  
  add operator+, operator-, operator*, operator/, operator();  
- add CVariant::toString(); 
+
   
 </br>
 </br>
@@ -138,6 +136,16 @@ Get value of a CVariant object. for a vector type, you can call as: `var[i].get`
 T value(void)
 ```
 Directly return the value,but if failed, will abort the whole proccess(current type of CVariant object can't cast to the given type T)
+```cpp
+std::string toString(const char* fmt);
+std::string toString(int prec);
+std::string toString(void); 
+```
+Return the formated string of the CVariant, and can config by input `fmt` and `prec`(precision after decimal point).
+| fmt | mean |
+|-----|------|
+|“hex”|out put as hex format|
+
 ```cpp
 const T* getPtr(void);       
 ```

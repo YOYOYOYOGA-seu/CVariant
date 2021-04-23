@@ -140,7 +140,24 @@ int main(void)
   std::cout << std::endl;
   test3.clear();
 
-
+  /* toString() 测试*/
+  test = static_cast<int>(123123);
+  std::cout << "toString :" << test.toString() << std::endl;
+  std::cout << "toString hex: 0x" << test.toString("hex") << std::endl;
+  test = true;
+  std::cout << "toString :" << test.toString() << std::endl;
+  test = 'c';
+  std::cout << "toString :" << test.toString() << std::endl;
+  test = 436346.324233123;
+  std::cout << "toString :" << test.toString() << std::endl;
+  std::cout << "toString prec = 3:" << test.toString(3) << std::endl;
+  std::vector<double> doubleList = {436346.324233123, 3432.5464, -12312.43, 34534.123};
+  test = doubleList;
+  std::cout << "toString :" << test.toString(3) << std::endl;
+  test = strList1;
+  std::cout << "toString :" << test.toString() << std::endl;
+  test = std::vector<bool>{true, false ,false, true};
+  std::cout << "toString :" << test.toString() << std::endl;
 	while (1)
 	{
 
