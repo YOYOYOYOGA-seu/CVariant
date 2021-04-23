@@ -1,7 +1,7 @@
 /*
  * @Author Shi Zhangkun
  * @Date 2021-01-05 20:23:48
- * @LastEditTime 2021-02-23 16:17:21
+ * @LastEditTime 2021-04-23 14:05:30
  * @LastEditors Shi Zhangkun
  * @Description none
  * @FilePath /cVariant/CVariant.h
@@ -50,6 +50,25 @@ typedef enum {
 
 namespace gva
 {
+  /* used for throw CVariant bad cast error */
+  class bad_variant_cast : public std::exception{
+  public:
+    datatype_t request;
+    datatype_t current;
+    std::string errStr;
+    bad_variant_cast(datatype_t req, datatype_t cur)noexcept
+    {
+      request = req; 
+      current = cur;
+      errStr = "CVariant: bad value read type,request(";
+      errStr += std::to_string(request) + "), current(" + std::to_string(current) + ")";
+    } 
+    const char * what () const throw ()
+    {
+      return errStr.c_str();
+    }
+  };
+
   extern const std::size_t BASE_TYPE_SIZE[DATATYPE_BASE_END];
   /* Used to limit the input type of a template function while allowing 
   the template function to automatically get a type number based on the 
@@ -434,9 +453,9 @@ namespace gva
         temp._cast_1(static_cast<datatype_t>(dataKind<T>::type));
         return *static_cast<T*>(temp.data);
       }
-      std::cerr << "CVariant: bad value read type,request("<< dataKind<T>::type <<"), current(" \
-      << static_cast<int>(type) << ")" <<std::endl;
-      abort();
+      
+      bad_variant_cast err(static_cast<datatype_t>(dataKind<T>::type), type);
+      throw err;
       return 0;
     }
     

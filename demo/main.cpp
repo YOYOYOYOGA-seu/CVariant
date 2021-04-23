@@ -101,7 +101,7 @@ int main(void)
   if(test == test2)
     std::cout <<"test == test2"<< std::endl;
 
-  std::vector<int> strList1 = {"a", "b", "csqada"};
+  std::vector<std::string> strList1 = {"a", "b", "csqada"};
   test = strList1;
   test2 = strList1;
   if(test == test2)
