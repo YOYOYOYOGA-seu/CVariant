@@ -34,7 +34,9 @@ For more information, please read section 3 for more detail.
 * Jan. 6, 2021 : add function template<T> operator T(), now can use statements like `double a = varObj` to cast from CVariant to support base type.
 
 * Apr. 23, 2021 : add `CVariant::toString()` function grop.    
-  
+
+* May. 18, 2021 : add `CVariant::getTypeSize()` function grop.   
+
 * Wait to do :  
  add operator+, operator-, operator*, operator/, operator();  
 

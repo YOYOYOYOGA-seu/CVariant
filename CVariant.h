@@ -532,6 +532,7 @@ namespace gva
     bool ifNumType(void)const;
     bool ifVectorType(void)const;
     bool ifType(void)const;
+    static unsigned int getTypeSize(int type);
     static inline bool ifBaseType(int type) 
     {
       return (type >= DATATYPEKIND_BOOLEAN && type < DATATYPE_BASE_END);

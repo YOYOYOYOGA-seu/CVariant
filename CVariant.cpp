@@ -1056,6 +1056,27 @@ unsigned int CVariant::getSize(void) const
 /**
  * @brief  
  * @note  
+ * @param {*}
+ * @retval none
+ */
+unsigned int CVariant::getTypeSize(int type)
+{
+  if(!ifBaseType(type)) return -1;
+  if(type >= DATATYPEKIND_BOOLEAN && type <= DATATYPEKIND_BYTE)
+    return 1;
+  else if(type >= DATATYPEKIND_INT16 && type <= DATATYPEKIND_UINT16)
+    return 2;
+  else if((type >= DATATYPEKIND_INT32 && type <= DATATYPEKIND_UINT32) || type == DATATYPEKIND_FLOAT)
+    return 4;
+  else if(type >= DATATYPEKIND_INT32 && type <= DATATYPEKIND_DOUBLE)
+    return 8;
+  else  
+    return -1;   
+}
+
+/**
+ * @brief  
+ * @note  
  * @param {type} none
  * @retval none
  */
