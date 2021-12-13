@@ -525,7 +525,7 @@ bool CVariant::operator==(const CVariant &var) const
   }
   else if (type == var.type && type == DATATYPEKIND_STRING)
   {
-    if (strcmp(static_cast<std::string *>(data)->c_str(), static_cast<std::string *>(var.data)->c_str()) == 0)
+    if (*static_cast<std::string *>(data) == *static_cast<std::string *>(var.data))
     {
       return true;
     }

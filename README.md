@@ -37,6 +37,8 @@ For more information, please read section 3 for more detail.
 
 * May. 18, 2021 : add `CVariant::getTypeSize()` function grop.   
 
+* Dec. 13, 2021 : add `CVariant::operate=()` for vector type CVariant.   
+  
 * Wait to do :  
  add operator+, operator-, operator*, operator/, operator();  
 

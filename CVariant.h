@@ -294,11 +294,38 @@ namespace gva
     }
     template<typename T> CVariant& operator=(const std::vector<T>& var)
     {
-      if (static_cast<datatype_t>(dataKind<T>::type) < DATATYPE_BASE_END)
+      if (static_cast<datatype_t>(dataKind<T>::type) + DATATYPEKIND_BOOLEAN_VECTOR == type)
+      {
+        std::vector<CVariant>& vct = *reinterpret_cast<std::vector<CVariant>*>(data);
+        unsigned int i = 0;
+        if (vct.size() <= var.size())
+        {
+          while (i < vct.size())
+          {
+            vct[i] = var[i];
+            i++;
+          }
+          while (i < var.size())
+          {
+            vct.push_back(var[i++]);
+          }
+        }
+        else
+        {
+          vct.erase(vct.begin() + var.size(), vct.end());
+          while (i < vct.size())
+          {
+            vct[i] = var[i];
+            i++;
+          }
+        }
+      }
+      else if (static_cast<datatype_t>(dataKind<T>::type) < DATATYPE_BASE_END)
       {
         clear();
         type = static_cast<datatype_t>(dataKind<T>::type + DATATYPEKIND_BOOLEAN_VECTOR);
         data = new std::vector<CVariant>;
+        static_cast<std::vector<CVariant>*>(data)->reserve(var.size());
         refCount = std::make_shared<unsigned int>(1);
         size = var.size();
         CVariant temp;
