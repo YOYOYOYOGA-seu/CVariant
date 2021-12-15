@@ -113,7 +113,7 @@ namespace gva
     void* data;
     std::shared_ptr<unsigned int> refCount;
     datatype_t type;
-    /* for base type, the size is 1; for vector type, the size is the vector size.
+    /* for base type (except string), the size is 1; for vector type or string, the size is the vector size.
       It will only refreash after call CVariant::getSize() */
     mutable unsigned int size;  //mutable(const CVariant can call CVariant::getSize())
     /* insert a object to a vector type CVariant object, internal function, and must 
@@ -289,6 +289,8 @@ namespace gva
           refCount = std::make_shared<unsigned int>(1);
         }
         size = 1;
+        if (static_cast<datatype_t>(dataKind<T>::type) == DATATYPEKIND_STRING)
+          size = var.size();
       }
       return *this;
     }

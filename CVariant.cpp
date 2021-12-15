@@ -347,7 +347,7 @@ CVariant &CVariant::operator=(const char *var)
     data = new std::string(var);
     refCount = std::make_shared<unsigned int>(1);
   }
-  size = 1;
+  size = static_cast<std::string *>(data)->size();
   return *this;
 }
 
@@ -1008,7 +1008,8 @@ bool CVariant::setType(datatype_t tp)
     data = new double;
     break;
   case DATATYPEKIND_STRING:
-    data = new std::string;
+    data = new std::string; 
+    size = 0;
     break;
   default:
     size = 0;
@@ -1049,6 +1050,10 @@ unsigned int CVariant::getSize(void) const
   if (type < DATATYPE_VECTOR_END && type >= DATATYPEKIND_BOOLEAN_VECTOR)
   {
     size = static_cast<std::vector<CVariant> *>(data)->size();
+  }
+  else if (type == DATATYPEKIND_STRING)
+  {
+    size = static_cast<std::string*>(data)->size();
   }
   return size;
 }
