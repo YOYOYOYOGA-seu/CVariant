@@ -290,7 +290,7 @@ namespace gva
         }
         size = 1;
         if (static_cast<datatype_t>(dataKind<T>::type) == DATATYPEKIND_STRING)
-          size = var.size();
+          size = static_cast<std::string*>(data)->size();
       }
       return *this;
     }
